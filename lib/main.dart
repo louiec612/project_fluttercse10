@@ -47,8 +47,7 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       extendBody: true,
       floatingActionButton: FloatingActionButton.large(
-        onPressed: () {_onButtonPressed(3);},
-
+        onPressed: () =>_onButtonPressed(3),
         shape: const CircleBorder(),
         child: const Icon(Icons.add),
       ),
@@ -60,12 +59,12 @@ class _HomePageState extends State<HomePage> {
       body: PageView(
         controller: _controller,
         onPageChanged: _onPageChanged,
+          physics: const NeverScrollableScrollPhysics(),
         children: const [
           flashcardView(),
           profileView(),
           addFlashcardView(),
         ],
-
       ),
     );
   }
