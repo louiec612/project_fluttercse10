@@ -1,6 +1,6 @@
 # project_fluttercse10
 
-A new Flutter project.
+CSE10 Flutter Project
 
 ## Getting Started
 
