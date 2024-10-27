@@ -6,6 +6,7 @@ import 'view/afcView.dart';
 
 void main() {
   runApp(const MyApp());
+
 }
 
 class MyApp extends StatelessWidget {
@@ -14,7 +15,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      theme: ThemeData(primarySwatch: Colors.blue),
+      theme: ThemeData(useMaterial3: true),
       debugShowCheckedModeBanner: false,
       home: const HomePage(),
     );
@@ -30,6 +31,8 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
 
+  Color _fabColor = Colors.grey;
+
   PageController _controller = PageController();
   int _currentIndex = 0;
   void _onPageChanged(int index){
@@ -40,22 +43,40 @@ class _HomePageState extends State<HomePage> {
 
   void _onButtonPressed(int index){
     _controller.jumpToPage(index);
+    setState(() {
+      _fabColor = _currentIndex == 2 ? Colors.cyan : Colors.grey;
+    });
+  }
+
+  void _changeColor(){
+
+    print(_currentIndex);
   }
   @override
   Widget build(BuildContext context) {
 
     return Scaffold(
+      backgroundColor: Colors.white,
       extendBody: true,
-      floatingActionButton: FloatingActionButton.large(
-        onPressed: () =>_onButtonPressed(3),
-        shape: const CircleBorder(),
-        child: const Icon(Icons.add),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+
       bottomNavigationBar: _bottomAppBar(
         currentIndex: _currentIndex,
         onButtonPressed: _onButtonPressed,
       ),
+      floatingActionButton: FloatingActionButton.large(
+        backgroundColor: Colors.white,
+        foregroundColor: _fabColor,
+        onPressed: (){
+          _onButtonPressed(3);
+          _changeColor;
+
+        }
+          
+        ,
+        shape: const CircleBorder(),
+        child: const Icon(Icons.add),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       body: PageView(
         controller: _controller,
         onPageChanged: _onPageChanged,
@@ -83,28 +104,44 @@ class _bottomAppBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BottomAppBar(
-      shape: const CircularNotchedRectangle(),
-      notchMargin: 10,
-      child: Row(
-        mainAxisSize: MainAxisSize.max,
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          ZoomTapAnimation(
-            child: IconButton(
-              onPressed: () => onButtonPressed(0), // Navigate to page 0
-              icon: const Icon(Icons.home),
-              color: currentIndex == 0 ? Colors.cyan : Colors.grey,
-            ),
-          ),
-          ZoomTapAnimation(
-            child: IconButton(
-              onPressed: () => onButtonPressed(1), // Navigate to page 1
-              icon: const Icon(Icons.person_2_outlined),
-              color: currentIndex == 1 ? Colors.cyan : Colors.grey,
-            ),
+    return Container(
+      decoration: const BoxDecoration(
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black26,
+            blurRadius: 8.0,
+            spreadRadius: 5.0,
+            offset: Offset(0.0, 2.0), // changes position of shadow
           ),
         ],
+      ),
+      child: ClipRRect(
+        borderRadius:
+        const BorderRadius.only(topRight: Radius.circular(15),topLeft: Radius.circular(15)),
+        child: BottomAppBar(
+          color: Colors.white,
+          elevation: 20,
+          child: Row(
+            mainAxisSize: MainAxisSize.max,
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              ZoomTapAnimation(
+                child: IconButton(
+                  onPressed: () => onButtonPressed(0), // Navigate to page 0
+                  icon: const Icon(Icons.home),
+                  color: currentIndex == 0 ? Colors.cyan : Colors.grey,
+                ),
+              ),
+              ZoomTapAnimation(
+                child: IconButton(
+                  onPressed: () => onButtonPressed(1), // Navigate to page 1
+                  icon: const Icon(Icons.person_2_outlined),
+                  color: currentIndex == 1 ? Colors.cyan : Colors.grey,
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

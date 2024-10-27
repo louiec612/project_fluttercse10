@@ -1,86 +1,42 @@
 import 'package:flutter/material.dart';
 
-/// Flutter code sample for [PageStorage].
+void main() {
+  runApp(MyApp());
+}
 
-void main() => runApp(const PageStorageExampleApp());
-
-class PageStorageExampleApp extends StatelessWidget {
-  const PageStorageExampleApp({super.key});
-
+class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      home: MyHomePage(),
+    return MaterialApp(
+      home: HomeScreen(),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key});
-
+class HomeScreen extends StatefulWidget {
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  _HomeScreenState createState() => _HomeScreenState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  final List<Widget> pages = const <Widget>[
-    ColorBoxPage(
-      key: PageStorageKey<String>('pageOne'),
-    ),
-    ColorBoxPage(
-      key: PageStorageKey<String>('pageTwo'),
-    ),
-  ];
-  int currentTab = 0;
-  final PageStorageBucket _bucket = PageStorageBucket();
+class _HomeScreenState extends State<HomeScreen> {
+  Color _fabColor = Colors.blue; // Initial color
+
+  void _changeFabColor() {
+    setState(() {
+      // Change color when FAB is pressed
+      _fabColor = _fabColor == Colors.blue ? Colors.red : Colors.blue;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Persistence Example'),
-      ),
-      body: PageStorage(
-        bucket: _bucket,
-        child: pages[currentTab],
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: currentTab,
-        onTap: (int index) {
-          setState(() {
-            currentTab = index;
-          });
-        },
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'page 1',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.settings),
-            label: 'page2',
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class ColorBoxPage extends StatelessWidget {
-  const ColorBoxPage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return ListView.builder(
-      itemExtent: 250.0,
-      itemBuilder: (BuildContext context, int index) => Container(
-        padding: const EdgeInsets.all(10.0),
-        child: Material(
-          color: index.isEven ? Colors.cyan : Colors.deepOrange,
-          child: Center(
-            child: Text(index.toString()),
-          ),
-        ),
+      appBar: AppBar(title: Text('FAB Color Change Example')),
+      body: Center(child: Text('Press the FAB to change its color!')),
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: _fabColor, // Set the background color
+        onPressed: _changeFabColor, // Change color on press
+        child: Icon(Icons.color_lens),
       ),
     );
   }
