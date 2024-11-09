@@ -31,12 +31,12 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('FAB Color Change Example')),
-      body: Center(child: Text('Press the FAB to change its color!')),
+      appBar: AppBar(title: const Text('FAB Color Change Example')),
+      body: const Center(child: Text('Press the FAB to change its color!')),
       floatingActionButton: FloatingActionButton(
         backgroundColor: _fabColor, // Set the background color
         onPressed: _changeFabColor, // Change color on press
-        child: Icon(Icons.color_lens),
+        child: const Icon(Icons.color_lens),
       ),
     );
   }
