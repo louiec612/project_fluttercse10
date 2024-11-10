@@ -130,14 +130,14 @@ class _bottomAppBar extends StatelessWidget {
               ZoomTapAnimation(
                 child: IconButton(
                   onPressed: () => onButtonPressed(0), // Navigate to page 0
-                  icon: const Icon(BootstrapIcons.house_fill,size: 25),
+                  icon: const Icon(BootstrapIcons.house_door,size: 25),
                   color: currentIndex == 0 ? Theme.of(context).primaryColor : Colors.grey,
                 ),
               ),
               ZoomTapAnimation(
                 child: IconButton(
                   onPressed: () => onButtonPressed(1), // Navigate to page 1
-                  icon: const Icon(BootstrapIcons.person_circle,size:25),
+                  icon: const Icon(BootstrapIcons.person,size:25),
                   color: currentIndex == 1 ? Theme.of(context).primaryColor : Colors.grey,
                 ),
               ),
