@@ -1,3 +1,4 @@
+import 'package:bootstrap_icons/bootstrap_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:zoom_tap_animation/zoom_tap_animation.dart';
 import 'view/flashcardsView.dart';
@@ -9,12 +10,16 @@ import 'package:google_fonts/google_fonts.dart';
 void main() {
   runApp(const MyApp());
 }
+getWidthSize getWid = getWidthSize();
+getHeightSize getHgt = getHeightSize();
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
+    getWid.wSize = MediaQuery.sizeOf(context).width;
+    getHgt.hSize = MediaQuery.sizeOf(context).height;
     return MaterialApp(
       theme: ThemeData(
         primaryColor: Colors.cyan[400],
@@ -33,8 +38,9 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+
   Color _fabColor = Colors.grey;
-  PageController _controller = PageController();
+  final PageController _controller = PageController();
   int _currentIndex = 0;
   void _onPageChanged(int index) {
     setState(() {
@@ -49,12 +55,11 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  void _changeColor() {
-    print(_currentIndex);
-  }
+
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       backgroundColor: Colors.white,
       extendBody: true,
@@ -67,22 +72,23 @@ class _HomePageState extends State<HomePage> {
         foregroundColor: _fabColor,
         onPressed: () {
           _onButtonPressed(3);
-          _changeColor;
+
         },
         shape: const CircleBorder(),
         child: const Icon(Icons.add),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      body: PageView(
-        controller: _controller,
-        onPageChanged: _onPageChanged,
-        physics: const NeverScrollableScrollPhysics(),
-        children: const [
-          flashcardView(),
-          profileView(),
-          addFlashcardView(),
-        ],
-      ),
+      body:
+          PageView(
+            controller: _controller,
+            onPageChanged: _onPageChanged,
+            physics: const NeverScrollableScrollPhysics(),
+            children: const [
+              flashcardView(),
+              profileView(),
+              addFlashcardView(),
+            ],
+          ),
     );
   }
 }
@@ -95,11 +101,12 @@ class _bottomAppBar extends StatelessWidget {
     Key? key,
     required this.currentIndex,
     required this.onButtonPressed,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
     return Container(
+
       decoration: const BoxDecoration(
         boxShadow: [
           BoxShadow(
@@ -123,14 +130,14 @@ class _bottomAppBar extends StatelessWidget {
               ZoomTapAnimation(
                 child: IconButton(
                   onPressed: () => onButtonPressed(0), // Navigate to page 0
-                  icon: const Icon(Icons.home),
+                  icon: const Icon(BootstrapIcons.house_fill,size: 25),
                   color: currentIndex == 0 ? Theme.of(context).primaryColor : Colors.grey,
                 ),
               ),
               ZoomTapAnimation(
                 child: IconButton(
                   onPressed: () => onButtonPressed(1), // Navigate to page 1
-                  icon: const Icon(Icons.person_2_outlined),
+                  icon: const Icon(BootstrapIcons.person_circle,size:25),
                   color: currentIndex == 1 ? Theme.of(context).primaryColor : Colors.grey,
                 ),
               ),
@@ -140,4 +147,25 @@ class _bottomAppBar extends StatelessWidget {
       ),
     );
   }
+}
+
+
+class getWidthSize{
+  late double _size;
+  set wSize(double value){
+    if(value>0){
+      _size = value;
+    }
+  }
+  double get wSize => _size;
+}
+
+class getHeightSize{
+  late double _size;
+  set hSize(double value){
+    if(value>0){
+      _size = value;
+    }
+  }
+  double get hSize => _size;
 }
