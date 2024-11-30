@@ -7,11 +7,9 @@ import 'view/addCardView.dart';
 import 'package:project_fluttercse10/getset.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-
 void main() {
   runApp(const MyApp());
 }
-
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -22,7 +20,12 @@ class MyApp extends StatelessWidget {
     getHgt.hSize = MediaQuery.sizeOf(context).height;
     return MaterialApp(
       theme: ThemeData(
-        primaryColor: Colors.cyan[400],
+        primaryColor: const Color.fromRGBO(26, 117, 159,1),
+        textTheme: TextTheme(
+          displayMedium: TextStyle(
+            color: Color.fromRGBO(17, 20, 76, 1),
+          )
+        )
       ),
       debugShowCheckedModeBanner: false,
       home: const HomePage(),
@@ -38,7 +41,6 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-
   Color _fabColor = Colors.grey;
   final PageController _controller = PageController();
   int _currentIndex = 0;
@@ -49,17 +51,15 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _onButtonPressed(int index) {
-    _controller.jumpToPage(index);
+    _controller.animateToPage(index,duration: Duration(milliseconds: 1) ,curve:Curves.ease);
     setState(() {
-      _fabColor = _currentIndex == 2 ? Theme.of(context).primaryColor : Colors.grey;
+      _fabColor =
+          _currentIndex == 2 ? Theme.of(context).primaryColor : Colors.grey;
     });
   }
 
-
-
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       backgroundColor: Colors.white,
       extendBody: true,
@@ -77,17 +77,16 @@ class _HomePageState extends State<HomePage> {
         child: const Icon(Icons.add),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      body:
-          PageView(
-            controller: _controller,
-            onPageChanged: _onPageChanged,
-            physics: const NeverScrollableScrollPhysics(),
-            children: const [
-              flashcardView(),
-              profileView(),
-              addFlashcardView(),
-            ],
-          ),
+      body: PageView(
+          controller: _controller,
+          onPageChanged: _onPageChanged,
+          physics: NeverScrollableScrollPhysics(),
+          children: const [
+            flashcardView(),
+            profileView(),
+            addFlashcardView(),
+          ],
+        ),
     );
   }
 }
@@ -105,7 +104,6 @@ class _bottomAppBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-
       decoration: const BoxDecoration(
         boxShadow: [
           BoxShadow(
@@ -129,15 +127,19 @@ class _bottomAppBar extends StatelessWidget {
               ZoomTapAnimation(
                 child: IconButton(
                   onPressed: () => onButtonPressed(0), // Navigate to page 0
-                  icon: const Icon(BootstrapIcons.house_door,size: 25),
-                  color: currentIndex == 0 ? Theme.of(context).primaryColor : Colors.grey,
+                  icon: const Icon(BootstrapIcons.house_door, size: 25),
+                  color: currentIndex == 0
+                      ? Theme.of(context).primaryColor
+                      : Colors.grey,
                 ),
               ),
               ZoomTapAnimation(
                 child: IconButton(
                   onPressed: () => onButtonPressed(1), // Navigate to page 1
-                  icon: const Icon(BootstrapIcons.person,size:25),
-                  color: currentIndex == 1 ? Theme.of(context).primaryColor : Colors.grey,
+                  icon: const Icon(BootstrapIcons.person, size: 25),
+                  color: currentIndex == 1
+                      ? Theme.of(context).primaryColor
+                      : Colors.grey,
                 ),
               ),
             ],
@@ -148,23 +150,24 @@ class _bottomAppBar extends StatelessWidget {
   }
 }
 
-
-class getWidthSize{
+class getWidthSize {
   late double _size;
-  set wSize(double value){
-    if(value>0){
+  set wSize(double value) {
+    if (value > 0) {
       _size = value;
     }
   }
+
   double get wSize => _size;
 }
 
-class getHeightSize{
+class getHeightSize {
   late double _size;
-  set hSize(double value){
-    if(value>0){
+  set hSize(double value) {
+    if (value > 0) {
       _size = value;
     }
   }
+
   double get hSize => _size;
 }
