@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:project_fluttercse10/main.dart';
+import 'package:project_fluttercse10/getset.dart';
 //VIEW FOR FLASHCARD LISTS
 class flashcardView extends StatefulWidget {
   const flashcardView({super.key});

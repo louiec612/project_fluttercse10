@@ -4,14 +4,14 @@ import 'package:zoom_tap_animation/zoom_tap_animation.dart';
 import 'view/flashcardsView.dart';
 import 'view/profileView.dart';
 import 'view/addCardView.dart';
+import 'package:project_fluttercse10/getset.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 
 void main() {
   runApp(const MyApp());
 }
-getWidthSize getWid = getWidthSize();
-getHeightSize getHgt = getHeightSize();
+
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -72,7 +72,6 @@ class _HomePageState extends State<HomePage> {
         foregroundColor: _fabColor,
         onPressed: () {
           _onButtonPressed(3);
-
         },
         shape: const CircleBorder(),
         child: const Icon(Icons.add),

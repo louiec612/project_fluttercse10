@@ -2,6 +2,7 @@
 
 import 'package:bootstrap_icons/bootstrap_icons.dart';
 import 'package:flutter/material.dart';
+import 'package:project_fluttercse10/getset.dart';
 import 'package:project_fluttercse10/main.dart';
 import '../test.dart';
 
@@ -17,15 +18,14 @@ class _profileViewState extends State<profileView> {
   @override
   Widget build(BuildContext context) {
     return const Stack(children: [
-      UserBar(),
-      UserSpent(),
+      userBar(),
+      userSpent(),
     ]);
   }
 }
 
-
-class UserBar extends StatelessWidget {
-  const UserBar({
+class userBar extends StatelessWidget {
+  const userBar({
     super.key,
   });
 
@@ -39,71 +39,6 @@ class UserBar extends StatelessWidget {
           borderRadius:
               const BorderRadius.vertical(bottom: Radius.circular(15))),
       child: const UserInfo(),
-    );
-  }
-}
-
-class UserSpent extends StatelessWidget {
-  const UserSpent({
-    super.key,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-
-    return Positioned(
-      top: getHgt.hSize *.32,
-      left: getWid.wSize/19,
-      child: Container(
-        width: getWid.wSize*0.89,
-        height: 85,
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.all(Radius.circular(20))
-          ,
-          boxShadow: [
-            BoxShadow(
-              offset: Offset(0, 5),
-              blurRadius: 5,
-              color: Colors.black26,
-            ),
-          ],),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            Row(
-              children: [
-                Icon(
-                  BootstrapIcons.lightning_fill,
-                  color: Colors.grey[600],
-                  size: 30,
-                ),
-                const SizedBox(width:20),
-                const Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text('3',style: TextStyle(fontSize: 20)),
-                    Text('Flashcards added',style: TextStyle(fontSize: 13)),
-                  ],
-                ),
-              ],
-            ),
-            Row(
-              children: [
-                Icon(BootstrapIcons.clock_fill, color: Colors.grey[600], size: 30),
-                const SizedBox(width:20),
-                const Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text('3',style: TextStyle(fontSize: 20)),
-                    Text('Hours Spent',style: TextStyle(fontSize: 13)),
-                  ],
-                ),
-              ],
-            )
-          ],
-        ),
-      ),
     );
   }
 }
@@ -146,6 +81,186 @@ class UserInfo extends StatelessWidget {
               fontWeight: FontWeight.w100,
             ),
           ),
+        ],
+      ),
+    );
+  }
+}
+
+class userSpent extends StatefulWidget {
+  const userSpent({
+    super.key,
+  });
+
+  @override
+  State<userSpent> createState() => _userSpentState();
+}
+
+class _userSpentState extends State<userSpent> {
+  String fcCount = '0';
+  String hrCount = '0';
+  final GlobalKey widgetKey = GlobalKey();
+
+  @override
+  Widget build(BuildContext context) {
+    return Positioned(
+      top: getHgt.hSize * .30,
+      left: getWid.wSize / 19,
+      child: Column(
+        children: [
+          Container(
+            key: widgetKey,
+            width: getWid.wSize * 0.89,
+            height: 95,
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.all(Radius.circular(20)),
+              boxShadow: [
+                BoxShadow(
+                  offset: Offset(0, 5),
+                  blurRadius: 5,
+                  color: Colors.black26,
+                ),
+              ],
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Row(
+                  children: [
+                    Icon(
+                      BootstrapIcons.lightning_fill,
+                      color: Colors.grey[600],
+                      size: 30,
+                    ),
+                    const SizedBox(width: 20),
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(fcCount, style: const TextStyle(fontSize: 20)),
+                        const Text('Flashcards added',
+                            style: TextStyle(fontSize: 13)),
+                      ],
+                    ),
+                  ],
+                ),
+                const VerticalDivider(
+                  width: 10,
+                  thickness: 1.5,
+                  indent: 20,
+                  endIndent: 20,
+                ),
+                Row(
+                  children: [
+                    Icon(BootstrapIcons.clock_fill,
+                        color: Colors.grey[600], size: 30),
+                    const SizedBox(width: 20),
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(hrCount, style: const TextStyle(fontSize: 20)),
+                        const Text('Hours Spent',
+                            style: TextStyle(fontSize: 13)),
+                      ],
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 40),
+          const userChartDropdown(),
+        ],
+      ),
+    );
+  }
+}
+
+class userChartDropdown extends StatefulWidget {
+  const userChartDropdown({super.key});
+
+  @override
+  State<userChartDropdown> createState() => _userChartDropdownState();
+}
+
+class _userChartDropdownState extends State<userChartDropdown> {
+  String? selectedValue;
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: <Widget>[
+        DropdownMenu<String>(
+          textStyle: TextStyle(
+
+            fontSize: 12,
+          ),
+          inputDecorationTheme: InputDecorationTheme(
+            contentPadding: const EdgeInsets.symmetric(horizontal: 20),
+            isDense: true,
+
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(100),
+            ),
+
+          ),
+          enableSearch: false,
+          initialSelection: "Screen Time",
+          onSelected: (value) {
+            setState(() {
+              selectedValue = value;
+              print(selectedValue);
+            });
+          },
+          dropdownMenuEntries: const <DropdownMenuEntry<String>>[
+            DropdownMenuEntry(value: "Screen Time", label: "Screen Time"),
+            DropdownMenuEntry(value: "Option 2", label: "Option 2"),
+            DropdownMenuEntry(value: "Option 3", label: "Option 3"),
+          ],
+          menuStyle: MenuStyle(
+
+            elevation:
+                const WidgetStatePropertyAll(4), // Shadow effect for the menu
+            shape: WidgetStatePropertyAll(RoundedRectangleBorder(
+              borderRadius:
+                  BorderRadius.circular(5), // Rounded corners for the dropdown
+            )),
+
+            backgroundColor: const WidgetStatePropertyAll(Colors.white),
+          ),
+
+        ),
+        const SizedBox(height: 40),
+        const userChartInfo(),
+      ],
+    );
+  }
+}
+
+class userChartInfo extends StatefulWidget {
+  const userChartInfo({super.key});
+
+  @override
+  State<userChartInfo> createState() => _userChartInfoState();
+}
+
+class _userChartInfoState extends State<userChartInfo> {
+  String getHr = '0';
+  String getMn = '0';
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      child: Column(
+        children: [
+          Text("$getHr hrs, $getMn mins",
+              style: const TextStyle(
+                fontSize: 28,
+                fontWeight:FontWeight.w500,
+              )),
+          const Text("Today",
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+              )),
         ],
       ),
     );
