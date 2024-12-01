@@ -10,7 +10,6 @@ import 'package:google_fonts/google_fonts.dart';
 
 void main() {
   runApp(const MyApp());
-  print("Andrei");
 }
 
 class MyApp extends StatelessWidget {
@@ -173,3 +172,4 @@ class getHeightSize {
 
   double get hSize => _size;
 }
+
