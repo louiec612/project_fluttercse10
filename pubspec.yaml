@@ -39,6 +39,7 @@ dependencies:
   google_fonts: ^6.2.1
   bootstrap_icons: ^1.8.1
   syncfusion_flutter_charts: ^27.2.4
+  google_generative_ai: ^0.4.6
 
 
 dev_dependencies:

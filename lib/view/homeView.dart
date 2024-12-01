@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:project_fluttercse10/getset.dart';
 
-class flashcardView extends StatefulWidget {
-  const flashcardView({super.key});
+class homeView extends StatefulWidget {
+  const homeView({super.key});
 
   @override
-  State<flashcardView> createState() => _flashcardViewState();
+  State<homeView> createState() => _homeViewState();
 }
 
-class _flashcardViewState extends State<flashcardView> {
+class _homeViewState extends State<homeView> {
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
