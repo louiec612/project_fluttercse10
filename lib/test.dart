@@ -1,39 +1,91 @@
-// ignore_for_file: file_names, camel_case_types
-
 import 'package:flutter/material.dart';
-import 'package:project_fluttercse10/main.dart';
-import 'package:project_fluttercse10/getset.dart';
-//VIEW FOR FLASHCARD LISTS
 
-void main(){
-  runApp(Main());
-}
-class Main extends StatefulWidget {
-  const Main({super.key});
-
-  @override
-  State<Main> createState() => _MainState();
+void main() {
+  runApp(MyApp());
 }
 
-class _MainState extends State<Main> {
+class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return
-      Column(
-        children: [
-          Text("WEW"),
-          Stack(
-            children: [
-              Positioned(
-                width: getWid.wSize,
-                height: getHgt.hSize/2.8,
-                child: Container(
-                  color: Colors.blue,
-                ),
-              ),
-            ],
+    return MaterialApp(
+      theme: ThemeData.dark(),
+      debugShowCheckedModeBanner: false,
+      home: Scaffold(
+        body: Center(
+          child: MyWidget(),
+        ),
+      ),
+    );
+  }
+}
+
+class MyWidget extends StatefulWidget {
+  @override
+  createState() => _MyWidgetState();
+}
+
+class _MyWidgetState extends State<MyWidget> with TickerProviderStateMixin {
+  final double address1Top = 20;
+  final double address2Top = 110;
+  bool swapped = false;
+
+  late Animation<double> addressAnimation;
+  late AnimationController controller;
+  animationListener() => setState(() { });
+
+  @override
+  void didChangeDependencies() async {
+    super.didChangeDependencies();
+
+    // Initialize animations
+    controller = AnimationController(duration: const Duration(milliseconds: 300), vsync: this);
+
+    addressAnimation = Tween(begin: 0.0, end: address2Top - address1Top).animate(CurvedAnimation(parent: controller, curve: const Interval(0.0, 1.0, curve: Curves.easeInOut)))..addListener(animationListener);
+  }
+
+  @override
+  dispose() {
+    // Dispose of animation controller
+    controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    var tweenValue = addressAnimation?.value ?? 0.0;
+
+    return Container(
+      width: 300,
+      height: 150,
+      color: Colors.blue,
+      child: Stack(
+        children: <Widget> [
+          // Top address
+          Positioned(
+            top: address1Top + tweenValue,
+            left: 20,
+            child: Text("This is the first address"),
+          ),
+          // Bottom address
+          Positioned(
+            top: address2Top - tweenValue,
+            left: 20,
+            child: Text("This is another address"),
+          ),
+          // Swap button
+          Positioned(
+            top: 50,
+            right: 20,
+            child: TextButton(
+              onPressed: () => setState(() {
+                swapped ? controller.reverse() : controller.forward();
+                swapped = !swapped;
+              }),
+              child: Text("swap"),
+            ),
           ),
         ],
-      );
+      ),
+    );
   }
 }
