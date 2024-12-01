@@ -1,9 +1,10 @@
 import 'package:bootstrap_icons/bootstrap_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:zoom_tap_animation/zoom_tap_animation.dart';
-import 'view/flashcardsView.dart';
+import 'view/homeView.dart';
 import 'view/profileView.dart';
-import 'view/addCardView.dart';
+import 'view/createView.dart';
+import 'view/quizView.dart';
 import 'package:project_fluttercse10/getset.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -82,9 +83,9 @@ class _HomePageState extends State<HomePage> {
           onPageChanged: _onPageChanged,
           physics: NeverScrollableScrollPhysics(),
           children: const [
-            flashcardView(),
+            homeView(),
             profileView(),
-            addFlashcardView(),
+            quizView(),
           ],
         ),
     );
