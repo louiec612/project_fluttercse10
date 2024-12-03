@@ -10,19 +10,23 @@ import 'package:google_fonts/google_fonts.dart';
 
 void main() {
   runApp(const MyApp());
+
 }
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
+
   @override
   Widget build(BuildContext context) {
     getWid.wSize = MediaQuery.sizeOf(context).width;
     getHgt.hSize = MediaQuery.sizeOf(context).height;
+    print(getHgt.hSize);
+    color.col = const Color.fromRGBO(26, 117, 159,1);
     return MaterialApp(
       theme: ThemeData(
-        primaryColor: const Color.fromRGBO(26, 117, 159,1),
-        textTheme: TextTheme(
+        primaryColor: color.col,
+        textTheme: const TextTheme(
           displayMedium: TextStyle(
             color: Color.fromRGBO(17, 20, 76, 1),
           )
@@ -52,7 +56,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _onButtonPressed(int index) {
-    _controller.animateToPage(index,duration: Duration(milliseconds: 1) ,curve:Curves.ease);
+    _controller.animateToPage(index,duration: const Duration(milliseconds: 1) ,curve:Curves.ease);
     setState(() {
       _fabColor =
           _currentIndex == 2 ? Theme.of(context).primaryColor : Colors.grey;
@@ -81,11 +85,11 @@ class _HomePageState extends State<HomePage> {
       body: PageView(
           controller: _controller,
           onPageChanged: _onPageChanged,
-          physics: NeverScrollableScrollPhysics(),
+          physics: const NeverScrollableScrollPhysics(),
           children: const [
             homeView(),
             profileView(),
-            quizView(),
+            addFlashcardView(),
           ],
         ),
     );

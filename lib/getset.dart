@@ -1,14 +1,21 @@
+import 'package:flutter/material.dart';
 getWidthSize getWid = getWidthSize();
 getHeightSize getHgt = getHeightSize();
 getPosition getPos = getPosition();
+getPrimaryColor color = getPrimaryColor();
+
 class getWidthSize{
+
   late double _size;
   set wSize(double value){
     if(value>0){
       _size = value;
     }
   }
+
   double get wSize => _size;
+
+
 }
 
 class getHeightSize{
@@ -29,4 +36,13 @@ class getPosition{
     }
   }
   double get hSize => height;
+}
+
+class getPrimaryColor{
+  late Color color;
+  set col(Color value){
+    color = value;
+  }
+
+  Color get col => color;
 }

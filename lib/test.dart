@@ -64,13 +64,13 @@ class _MyWidgetState extends State<MyWidget> with TickerProviderStateMixin {
           Positioned(
             top: address1Top + tweenValue,
             left: 20,
-            child: Text("This is the first address"),
+            child: const Text("This is the first address"),
           ),
           // Bottom address
           Positioned(
             top: address2Top - tweenValue,
             left: 20,
-            child: Text("This is another address"),
+            child: const Text("This is another address"),
           ),
           // Swap button
           Positioned(
@@ -81,7 +81,7 @@ class _MyWidgetState extends State<MyWidget> with TickerProviderStateMixin {
                 swapped ? controller.reverse() : controller.forward();
                 swapped = !swapped;
               }),
-              child: Text("swap"),
+              child: const Text("swap"),
             ),
           ),
         ],

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:project_fluttercse10/getset.dart';
+import 'package:project_fluttercse10/view/quizView.dart';
 
 class homeView extends StatefulWidget {
   const homeView({super.key});
@@ -23,9 +24,14 @@ class _homeViewState extends State<homeView> {
                 borderRadius:
                     const BorderRadius.vertical(bottom: Radius.circular(15))),
           ),
-          const Column(
+          Column(
             children: [
-              Text("Flashcard View"),
+              ElevatedButton(onPressed: (){
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const quizView())
+                  );
+              }, child: Text("Card 1"))
             ],
           ),
         ],

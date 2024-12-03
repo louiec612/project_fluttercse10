@@ -40,6 +40,10 @@ dependencies:
   bootstrap_icons: ^1.8.1
   syncfusion_flutter_charts: ^27.2.4
   google_generative_ai: ^0.4.6
+  carousel_slider: ^5.0.0
+  flutter_animate: ^4.5.2
+  sqflite: ^2.4.1
+
 
 
 dev_dependencies:
