@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:bootstrap_icons/bootstrap_icons.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:project_fluttercse10/main.dart';
 import 'package:carousel_slider/carousel_slider.dart';
@@ -26,7 +25,7 @@ class _quizViewState extends State<quizView> {
           children: [
             const SizedBox(height: 100),
             Row(children: [
-              const SizedBox(width: 80),
+              SizedBox(width: getWid.wSize*2/10),
               IconButton(
                 iconSize: 30,
                 onPressed: () {
@@ -78,28 +77,7 @@ class _quizViewState extends State<quizView> {
   }
 }
 
-final Map<String, String> questionsAndAnswers = {
-  'What is your name?': 'John Doe',
-  'How old are you?': '25',
-  'Where do you live?': 'New York',
-  'What is your favorite color?': 'Blue',
-  'What is your hobby?': 'Reading books',
-  'What is your favorite food?': 'Pizza',
-  'What is your dream job?': 'Software Engineer',
-  'What is the capital of France?': 'Paris',
-  'What is 5 + 7?': '12',
-  'Who is the president of the USA?': 'Joe Biden',
-  'What is the square root of 64?': '8',
-  'What is the tallest mountain?': 'Mount Everest',
-  'What is the largest ocean?': 'Pacific Ocean',
-  'What is 10 * 5?': '50',
-  'What year did the Titanic sink?': '1912',
-  'Who wrote "Romeo and Juliet"?': 'William Shakespeare',
-  'What is the currency of Japan?': 'Yen',
-  'What is the speed of light?': '299,792,458 m/s',
-  'What is the boiling point of water?': '100°C',
-  'How many continents are there?': '7',
-};
+final Map<String, String> questionsAndAnswers = generateCard.data;
 final List<Widget> myWidgets = questionsAndAnswers.entries.map((entry) {
   return VisibilityCard(
     question: entry.key,
@@ -111,6 +89,7 @@ class VisibilityCard extends StatefulWidget {
   final String question;
   final String answer;
 
+
   const VisibilityCard({Key? key, required this.question, required this.answer})
       : super(key: key);
 
@@ -120,6 +99,12 @@ class VisibilityCard extends StatefulWidget {
 
 class _VisibilityCardState extends State<VisibilityCard> {
   bool visible = false;
+  bool _isSmall = false;
+  void _toggleSize() {
+    setState(() {
+      _isSmall = !_isSmall;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -129,8 +114,10 @@ class _VisibilityCardState extends State<VisibilityCard> {
           children: [
             ClipRRect(
               borderRadius: BorderRadius.circular(50),
-              child: Container(
-                height: getHgt.hSize / 3,
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 500), // Animation duration
+                curve: Curves.easeInOut,
+                height: _isSmall? getHgt.hSize / 3.4:(getHgt.hSize / 3.4)+50,
                 decoration: BoxDecoration(
                   color: color.col,
                 ),
@@ -145,15 +132,18 @@ class _VisibilityCardState extends State<VisibilityCard> {
             ),
             const SizedBox(height: 30),
             if(visible)
-              _answerContainer(widget: widget).animate().fadeIn(duration: 200.ms).slideY(duration: 800.ms,curve: Curves.bounceOut),
+              _answerContainer(widget: widget).animate().fadeIn(duration: 700.ms,curve: Curves.easeIn).slideY(delay: 100.ms,duration: 500.ms,curve: Curves.easeInOut),
           ],
         ),
-        Positioned.fill(
-          bottom: getHgt.hSize / 3.4,
+        AnimatedPositioned(
+          duration: Duration(milliseconds: 500),
+          width: (getWid.wSize-100),
+          curve: Curves.easeInOut,
+          bottom: _isSmall ? (getHgt.hSize / 3.6)+50 :(getHgt.hSize / 3.6),
           child: Align(
             alignment: Alignment.bottomCenter,
             child: Container(
-              height: 50,
+              height: 55,
               width: 50,
               decoration: BoxDecoration(
                 color: Colors.white,
@@ -168,11 +158,15 @@ class _VisibilityCardState extends State<VisibilityCard> {
               ),
               child: IconButton(
                 onPressed: () {
+                  _toggleSize();
                   setState(() {
                     visible = !visible; // Toggle visibility
                   });
                 },
-                icon: const Icon(
+                icon: _isSmall ? Icon(
+                  Icons.keyboard_arrow_up,
+                  size: 35,
+                ):Icon(
                   Icons.keyboard_arrow_down,
                   size: 35,
                 ),
@@ -196,7 +190,7 @@ class _answerContainer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 150,
+      height: 200,
       width: 200,
       decoration: BoxDecoration(
           color: color.col, borderRadius: BorderRadius.circular(20)),

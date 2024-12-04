@@ -1,6 +1,7 @@
 import 'package:bootstrap_icons/bootstrap_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:zoom_tap_animation/zoom_tap_animation.dart';
+import 'generator.dart';
 import 'view/homeView.dart';
 import 'view/profileView.dart';
 import 'view/createView.dart';
@@ -8,9 +9,16 @@ import 'view/quizView.dart';
 import 'package:project_fluttercse10/getset.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-void main() {
-  runApp(const MyApp());
 
+void main() async{
+  runApp(const MyApp());
+  final generator = QuestionAnswerGenerator(apiKey);
+  try {
+    generateCard.data = await generator.generate();
+    print(generateCard.data);
+  } catch (e) {
+    print('Error: $e');
+  }
 }
 
 class MyApp extends StatelessWidget {
@@ -21,7 +29,6 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     getWid.wSize = MediaQuery.sizeOf(context).width;
     getHgt.hSize = MediaQuery.sizeOf(context).height;
-    print(getHgt.hSize);
     color.col = const Color.fromRGBO(26, 117, 159,1);
     return MaterialApp(
       theme: ThemeData(
@@ -176,4 +183,5 @@ class getHeightSize {
 
   double get hSize => _size;
 }
+
 

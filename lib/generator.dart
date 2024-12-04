@@ -1,70 +1,54 @@
-import 'package:google_generative_ai/google_generative_ai.dart';
+
 import 'package:flutter/material.dart';
 import 'package:sqflite/sqflite.dart';
+import 'getset.dart';
+import 'package:google_generative_ai/google_generative_ai.dart';
+
 
 const apiKey = 'AIzaSyBiTikvtoGbTnJdthLj_BEcXKdhPAxoKW0';
+String topic = "Automata";
+String numberOfQuestions = "30";
 
-void main() {
-  runApp(const MyApp());
-}
+class QuestionAnswerGenerator {
+  final String apiKey;
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  QuestionAnswerGenerator(this.apiKey);
 
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-
-      home: Scaffold(
-        appBar: AppBar(title: const Text('Generative AI Example')),
-        body: Center(
-          child: FutureBuilder<String?>(
-            future: generate(), // The asynchronous function
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const CircularProgressIndicator(); // Show a loading indicator while waiting for the result
-              } else if (snapshot.hasError) {
-                return Text('Error: ${snapshot.error}'); // Handle error if any
-              } else if (snapshot.hasData) {
-                String a = snapshot.data.toString().substring(
-                    snapshot.data.toString().indexOf('{') + 1,
-                    snapshot.data.toString().lastIndexOf('}')
-                );
-                List<String> pairs = a.split(',\n');
-                // Create a Map<String, String> from the key-value pairs
-                Map<String, String> questionAnswerMap = {};
-                for (var pair in pairs) {
-                  // Split each pair into a key and value by the colon ":"
-                  List<String> keyValue = pair.split('": "');
-                  // Clean up the key and value by removing quotes
-                  if (keyValue.length == 2) {
-                    String key = keyValue[0].replaceAll('"', '').trim();
-                    String value = keyValue[1].replaceAll('"', '').trim();
-                    questionAnswerMap[key] = value;
-                  }
-                }
-                // Now `questionAnswerMap` is a proper Map<String, String>
-                print(questionAnswerMap.runtimeType);
-                return Text('${questionAnswerMap}'); // Display the result
-              } else {
-                return const Text('No data available');
-              }
-            },
-          ),
-        ),
-      ),
+  /// Asynchronous function to generate the map
+  Future<Map<String, String>> generate() async {
+    final model = GenerativeModel(
+      model: 'gemini-1.5-flash-latest',
+      apiKey: apiKey,
     );
+
+    var prompt = 'I want you to create a dart map like this, "Question": "Answer", Any topic, and exactly $numberOfQuestions question with different question types. Remove ```dart at the beginning and end specifically, make the questions about $topic, shorten the question into 1 sentence and 1-3 words for answers';
+    final content = [Content.text(prompt)];
+    final response = await model.generateContent(content);
+
+    if (response.text == null || response.text!.isEmpty) {
+      throw Exception("No data returned from the API");
+    }
+
+    // Extracting and processing the response text
+    String rawData = response.text!;
+    String trimmedData = rawData.substring(
+        rawData.indexOf('{') + 1,
+        rawData.lastIndexOf('}')
+    );
+
+    List<String> pairs = trimmedData.split(',\n');
+    Map<String, String> questionAnswerMap = {};
+
+    for (var pair in pairs) {
+      List<String> keyValue = pair.split('": "');
+      if (keyValue.length == 2) {
+        String key = keyValue[0].replaceAll('"', '').trim();
+        String value = keyValue[1].replaceAll('"', '').trim();
+        questionAnswerMap[key] = value;
+      }
+    }
+
+    return questionAnswerMap;
   }
 }
 
-Future<String?> generate() async {
-  final model = GenerativeModel(
-    model: 'gemini-1.5-flash-latest',
-    apiKey: apiKey,
-  );
-
-  const prompt = 'I want you to create a dart map like this, "Question": "Answer", Any topic, and 20 questions. Remove ```dart at the beginning and end specifically, ';
-  final content = [Content.text(prompt)];
-  final response = await model.generateContent(content);
-  return response.text;
-}
