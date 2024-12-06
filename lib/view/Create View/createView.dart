@@ -1,55 +1,97 @@
 import 'package:flutter/material.dart';
-import 'package:google_generative_ai/google_generative_ai.dart';
-import 'package:project_fluttercse10/config.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:archive/archive.dart';
+import 'package:xml/xml.dart';
+import 'dart:io';
 
-String numberOfQuestions = "30";
-
-class addFlashcardView extends StatefulWidget {
-  const addFlashcardView({super.key});
+class AddFlashcardView extends StatefulWidget {
+  const AddFlashcardView({super.key});
 
   @override
-  State<addFlashcardView> createState() => _addFlashcardViewState();
+  State<AddFlashcardView> createState() => _AddFlashcardViewState();
 }
 
-class _addFlashcardViewState extends State<addFlashcardView> {
+class _AddFlashcardViewState extends State<AddFlashcardView> {
   bool _isChecked = false;
   final TextEditingController _topicController = TextEditingController();
   List<MapEntry<String, String>> questionAnswerPairs = [];
   bool _isLoading = false;
 
-  Future<Map<String, String>> generateQuestions(String topic) async {
-    final model = GenerativeModel(
-      model: 'gemini-1.5-flash-latest',
-      apiKey: apiKey,
+  Future<void> importDocxFile() async {
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['docx'],
     );
 
-    var prompt =
-        'I want you to create a dart map like this, "Question": "Answer", Any topic, and exactly $numberOfQuestions question with different question types. Remove ```dart at the beginning and end specifically, make the questions about $topic, shorten the question into 1 sentence and 1-3 words for answers';
-    final content = [Content.text(prompt)];
-    final response = await model.generateContent(content);
+    if (result != null && result.files.single.bytes != null) {
+      try {
+        List<int> bytes = result.files.single.bytes!;
+        Archive archive = ZipDecoder().decodeBytes(bytes);
 
-    if (response.text == null || response.text!.isEmpty) {
-      throw Exception("No data returned from the API");
-    }
+        String? documentXml;
+        for (var file in archive) {
+          if (file.name == 'word/document.xml') {
+            documentXml = String.fromCharCodes(file.content);
+            break;
+          }
+        }
 
-    String rawData = response.text!;
-    String trimmedData = rawData.substring(
-        rawData.indexOf('{') + 1, rawData.lastIndexOf('}'));
+        if (documentXml == null) {
+          throw Exception('Could not find document.xml in the .docx file');
+        }
 
-    List<String> pairs = trimmedData.split(',\n');
-    Map<String, String> questionAnswerMap = {};
+        XmlDocument xmlDocument = XmlDocument.parse(documentXml);
+        List<String> textList = [];
+        for (var element in xmlDocument.findAllElements('w:t')) {
+          String text = element.text.trim();
+          if (text.isNotEmpty) {
+            textList.add(text);
+          }
+        }
 
-    for (var pair in pairs) {
-      List<String> keyValue = pair.split('": "');
-      if (keyValue.length == 2) {
-        String key = keyValue[0].replaceAll('"', '').trim();
-        String value = keyValue[1].replaceAll('"', '').trim();
-        questionAnswerMap[key] = value;
+        List<MapEntry<String, String>> flashcards = [];
+        String? currentQuestion;
+        String? currentAnswer;
+
+        for (var line in textList) {
+          if (line.isEmpty) {
+            continue;
+          }
+
+          if (currentQuestion == null) {
+            // This line is a question
+            currentQuestion = line;
+          } else if (currentAnswer == null) {
+            // This line is an answer
+            currentAnswer = line;
+            flashcards.add(MapEntry(currentQuestion, currentAnswer));
+            currentQuestion = null;
+            currentAnswer = null;
+          }
+        }
+
+        if (currentQuestion != null) {
+          print('Warning: There is a question without an answer: "$currentQuestion"');
+        }
+
+        // Update the state with parsed question-answer pairs
+        setState(() {
+          questionAnswerPairs = flashcards;
+        });
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error reading file: $e')),
+        );
       }
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('No file selected or invalid file')),
+      );
     }
-
-    return questionAnswerMap;
   }
+
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -84,7 +126,6 @@ class _addFlashcardViewState extends State<addFlashcardView> {
               ],
             ),
           ),
-
           const SizedBox(height: 20),
 
           // Topic input and buttons
@@ -106,9 +147,7 @@ class _addFlashcardViewState extends State<addFlashcardView> {
                   children: [
                     Expanded(
                       child: ElevatedButton(
-                        onPressed: () {
-                          // Add functionality for Import button here
-                        },
+                        onPressed: importDocxFile,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.grey[600],
                         ),
@@ -167,11 +206,8 @@ class _addFlashcardViewState extends State<addFlashcardView> {
                     setState(() => _isLoading = true);
 
                     try {
-                      Map<String, String> generatedData =
-                      await generateQuestions(topic);
-                      setState(() {
-                        questionAnswerPairs = generatedData.entries.toList();
-                      });
+                      // Call importDocxFile instead of generateQuestions
+                      await importDocxFile();
                     } catch (e) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(content: Text('Error: $e')),
@@ -182,11 +218,9 @@ class _addFlashcardViewState extends State<addFlashcardView> {
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.grey[600],
-                    minimumSize: Size(150, 50), // Adjust width and height as needed
+                    minimumSize: Size(150, 50),
                     padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
-                    textStyle: const TextStyle(
-                      fontSize: 14, // Increase the font size to make the button look bigger
-                    ),
+                    textStyle: const TextStyle(fontSize: 14),
                   ),
                   child: _isLoading
                       ? const CircularProgressIndicator(
@@ -200,13 +234,8 @@ class _addFlashcardViewState extends State<addFlashcardView> {
               ],
             ),
           ),
-
           const SizedBox(height: 20),
-
-          // Divider
           const Divider(thickness: 1),
-
-          // Added Cards title
           const Padding(
             padding: EdgeInsets.symmetric(horizontal: 20),
             child: Text(
@@ -219,8 +248,6 @@ class _addFlashcardViewState extends State<addFlashcardView> {
             ),
           ),
           const SizedBox(height: 10),
-
-          // Added Cards list
           Expanded(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -264,8 +291,8 @@ class CardWidget extends StatelessWidget {
           ),
         ],
       ),
-      width: double.infinity, // Makes it stretch to the parent's width
-      height: 120, // Fixed height for uniformity
+      width: double.infinity,
+      height: 120,
       child: Row(
         children: [
           Expanded(
@@ -281,7 +308,7 @@ class CardWidget extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
             ),
           ),
-          const SizedBox(width: 15), // Space between question and answer
+          const SizedBox(width: 15),
           Expanded(
             flex: 2,
             child: Text(
@@ -299,4 +326,3 @@ class CardWidget extends StatelessWidget {
     );
   }
 }
-

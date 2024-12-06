@@ -95,7 +95,7 @@ class HomePageState extends State<HomePage> {
           children: const [
             homeView(),
             profileView(),
-            addFlashcardView(),
+            AddFlashcardView(),
             deckView(),
           ],
         ),
