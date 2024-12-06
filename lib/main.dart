@@ -1,5 +1,6 @@
 import 'package:bootstrap_icons/bootstrap_icons.dart';
 import 'package:flutter/material.dart';
+import 'package:project_fluttercse10/view/deckView.dart';
 import 'package:zoom_tap_animation/zoom_tap_animation.dart';
 import 'generator.dart';
 import 'view/homeView.dart';
@@ -40,30 +41,28 @@ class MyApp extends StatelessWidget {
         )
       ),
       debugShowCheckedModeBanner: false,
-      home: const HomePage(),
+      home: HomePage(),
     );
   }
 }
-
+final GlobalKey<HomePageState> homePageKey = GlobalKey<HomePageState>();
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  HomePage({Key? key}) : super(key: homePageKey);
+
 
   @override
-  State<HomePage> createState() => _HomePageState();
+  State<HomePage> createState() => HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class HomePageState extends State<HomePage> {
   Color _fabColor = Colors.grey;
   final PageController _controller = PageController();
   int _currentIndex = 0;
-  void _onPageChanged(int index) {
-    setState(() {
-      _currentIndex = index;
-    });
-  }
 
-  void _onButtonPressed(int index) {
+
+  void onButtonPressed(int index) {
     _controller.animateToPage(index,duration: const Duration(milliseconds: 1) ,curve:Curves.ease);
+    _currentIndex = index;
     setState(() {
       _fabColor =
           _currentIndex == 2 ? Theme.of(context).primaryColor : Colors.grey;
@@ -77,13 +76,13 @@ class _HomePageState extends State<HomePage> {
       extendBody: true,
       bottomNavigationBar: _bottomAppBar(
         currentIndex: _currentIndex,
-        onButtonPressed: _onButtonPressed,
+        onButtonPressed: onButtonPressed,
       ),
       floatingActionButton: FloatingActionButton.large(
         backgroundColor: Colors.white,
         foregroundColor: _fabColor,
         onPressed: () {
-          _onButtonPressed(3);
+          onButtonPressed(2);
         },
         shape: const CircleBorder(),
         child: const Icon(Icons.add),
@@ -91,12 +90,12 @@ class _HomePageState extends State<HomePage> {
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       body: PageView(
           controller: _controller,
-          onPageChanged: _onPageChanged,
           physics: const NeverScrollableScrollPhysics(),
           children: const [
             homeView(),
             profileView(),
             addFlashcardView(),
+            deckView(),
           ],
         ),
     );

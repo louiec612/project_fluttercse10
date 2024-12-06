@@ -58,7 +58,7 @@ class _quizViewState extends State<quizView> {
             Column(
               children: [
                 Text('${_current + 1}/${myWidgets.length}'),
-                SizedBox(height: 10),
+                const SizedBox(height: 10),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 50.0),
                   child: LinearProgressIndicator(
@@ -136,7 +136,7 @@ class _VisibilityCardState extends State<VisibilityCard> {
           ],
         ),
         AnimatedPositioned(
-          duration: Duration(milliseconds: 500),
+          duration: const Duration(milliseconds: 500),
           width: (getWid.wSize-100),
           curve: Curves.easeInOut,
           bottom: _isSmall ? (getHgt.hSize / 3.6)+50 :(getHgt.hSize / 3.6),
@@ -163,10 +163,10 @@ class _VisibilityCardState extends State<VisibilityCard> {
                     visible = !visible; // Toggle visibility
                   });
                 },
-                icon: _isSmall ? Icon(
+                icon: _isSmall ? const Icon(
                   Icons.keyboard_arrow_up,
                   size: 35,
-                ):Icon(
+                ):const Icon(
                   Icons.keyboard_arrow_down,
                   size: 35,
                 ),

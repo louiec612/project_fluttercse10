@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:project_fluttercse10/getset.dart';
 import 'package:project_fluttercse10/view/quizView.dart';
 
+import '../main.dart';
+
 class homeView extends StatefulWidget {
   const homeView({super.key});
 
@@ -31,7 +33,10 @@ class _homeViewState extends State<homeView> {
                     context,
                     MaterialPageRoute(builder: (context) => const quizView())
                   );
-              }, child: Text("Card 1"))
+              }, child: const Text("Card 1")),
+              ElevatedButton(onPressed: (){
+                homePageKey.currentState?.onButtonPressed(4);
+              }, child: const Text("View All"))
             ],
           ),
         ],
