@@ -2,11 +2,12 @@
 import 'package:flutter/material.dart';
 import 'package:sqflite/sqflite.dart';
 import 'getset.dart';
+
 import 'package:google_generative_ai/google_generative_ai.dart';
 
 
 const apiKey = 'AIzaSyBiTikvtoGbTnJdthLj_BEcXKdhPAxoKW0';
-String topic = "Grade 1 Mathematics";
+String topic = "2nd Year Highschool Mathematics";
 String numberOfQuestions = "30";
 
 class QuestionAnswerGenerator {

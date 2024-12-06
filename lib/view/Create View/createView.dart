@@ -1,7 +1,8 @@
-// ignore_for_file: camel_case_types, file_names
-
 import 'package:flutter/material.dart';
-import '../../getset.dart';
+import 'package:google_generative_ai/google_generative_ai.dart';
+import 'package:project_fluttercse10/config.dart';
+
+String numberOfQuestions = "30";
 
 class addFlashcardView extends StatefulWidget {
   const addFlashcardView({super.key});
@@ -12,6 +13,43 @@ class addFlashcardView extends StatefulWidget {
 
 class _addFlashcardViewState extends State<addFlashcardView> {
   bool _isChecked = false;
+  final TextEditingController _topicController = TextEditingController();
+  List<MapEntry<String, String>> questionAnswerPairs = [];
+  bool _isLoading = false;
+
+  Future<Map<String, String>> generateQuestions(String topic) async {
+    final model = GenerativeModel(
+      model: 'gemini-1.5-flash-latest',
+      apiKey: apiKey,
+    );
+
+    var prompt =
+        'I want you to create a dart map like this, "Question": "Answer", Any topic, and exactly $numberOfQuestions question with different question types. Remove ```dart at the beginning and end specifically, make the questions about $topic, shorten the question into 1 sentence and 1-3 words for answers';
+    final content = [Content.text(prompt)];
+    final response = await model.generateContent(content);
+
+    if (response.text == null || response.text!.isEmpty) {
+      throw Exception("No data returned from the API");
+    }
+
+    String rawData = response.text!;
+    String trimmedData = rawData.substring(
+        rawData.indexOf('{') + 1, rawData.lastIndexOf('}'));
+
+    List<String> pairs = trimmedData.split(',\n');
+    Map<String, String> questionAnswerMap = {};
+
+    for (var pair in pairs) {
+      List<String> keyValue = pair.split('": "');
+      if (keyValue.length == 2) {
+        String key = keyValue[0].replaceAll('"', '').trim();
+        String value = keyValue[1].replaceAll('"', '').trim();
+        questionAnswerMap[key] = value;
+      }
+    }
+
+    return questionAnswerMap;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -22,8 +60,8 @@ class _addFlashcardViewState extends State<addFlashcardView> {
         children: [
           // Header with profile section
           Container(
-            width: getWid.wSize,
-            height: getHgt.hSize / 2.8,
+            width: MediaQuery.of(context).size.width,
+            height: MediaQuery.of(context).size.height / 2.8,
             decoration: BoxDecoration(
               color: Theme.of(context).primaryColor,
               borderRadius: const BorderRadius.vertical(
@@ -49,14 +87,15 @@ class _addFlashcardViewState extends State<addFlashcardView> {
 
           const SizedBox(height: 20),
 
-          // Automata Review input and buttons
+          // Topic input and buttons
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: Column(
               children: [
                 TextField(
+                  controller: _topicController,
                   decoration: InputDecoration(
-                    hintText: 'Enter Card Title',
+                    hintText: 'Enter A Topic',
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
                     ),
@@ -96,15 +135,16 @@ class _addFlashcardViewState extends State<addFlashcardView> {
                               style: TextStyle(color: Colors.white),
                             ),
                             const SizedBox(width: 5),
-                            Checkbox(
+                            Switch(
                               value: _isChecked,
-                              onChanged: (bool? value) {
+                              onChanged: (bool value) {
                                 setState(() {
-                                  _isChecked = value ?? false;
+                                  _isChecked = value;
                                 });
                               },
                               activeColor: Colors.white,
-                              checkColor: Colors.black,
+                              activeTrackColor: Colors.teal,
+                              inactiveTrackColor: Colors.grey[400],
                             ),
                           ],
                         ),
@@ -114,13 +154,45 @@ class _addFlashcardViewState extends State<addFlashcardView> {
                 ),
                 const SizedBox(height: 10),
                 ElevatedButton(
-                  onPressed: () {
-                    // Add functionality for Generate button here
+                  onPressed: () async {
+                    String topic = _topicController.text.trim();
+                    if (topic.isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Please enter a topic!'),
+                        ),
+                      );
+                      return;
+                    }
+                    setState(() => _isLoading = true);
+
+                    try {
+                      Map<String, String> generatedData =
+                      await generateQuestions(topic);
+                      setState(() {
+                        questionAnswerPairs = generatedData.entries.toList();
+                      });
+                    } catch (e) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Error: $e')),
+                      );
+                    } finally {
+                      setState(() => _isLoading = false);
+                    }
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.grey[600],
+                    minimumSize: Size(150, 50), // Adjust width and height as needed
+                    padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
+                    textStyle: const TextStyle(
+                      fontSize: 14, // Increase the font size to make the button look bigger
+                    ),
                   ),
-                  child: const Text(
+                  child: _isLoading
+                      ? const CircularProgressIndicator(
+                    color: Colors.white,
+                  )
+                      : const Text(
                     'Generate',
                     style: TextStyle(color: Colors.white),
                   ),
@@ -146,31 +218,24 @@ class _addFlashcardViewState extends State<addFlashcardView> {
               ),
             ),
           ),
-          const SizedBox(height: 10), // Adds space between the title and the list
+          const SizedBox(height: 10),
 
           // Added Cards list
           Expanded(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: ListView(
-                children: const [
-                  CardWidget(question: "Question", answer: "Answer"),
-                  SizedBox(height: 10),
-                  CardWidget(question: "Question", answer: "Answer"),
-                ],
+              child: ListView.builder(
+                itemCount: questionAnswerPairs.length,
+                itemBuilder: (context, index) {
+                  final pair = questionAnswerPairs[index];
+                  return Column(
+                    children: [
+                      CardWidget(question: pair.key, answer: pair.value),
+                      const SizedBox(height: 10),
+                    ],
+                  );
+                },
               ),
-            ),
-          ),
-
-          // Floating Add Button at the bottom
-          Padding(
-            padding: const EdgeInsets.only(bottom: 10),
-            child: FloatingActionButton(
-              onPressed: () {
-                // Add functionality for the Add button here
-              },
-              backgroundColor: Colors.teal,
-              child: const Icon(Icons.add, size: 30),
             ),
           ),
         ],
@@ -199,34 +264,39 @@ class CardWidget extends StatelessWidget {
           ),
         ],
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      width: double.infinity, // Makes it stretch to the parent's width
+      height: 120, // Fixed height for uniformity
+      child: Row(
         children: [
-          // Question section
-          Text(
-            question,
-            style: const TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 16,
-              color: Colors.black87,
+          Expanded(
+            flex: 3,
+            child: Text(
+              question,
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+                color: Colors.black87,
+              ),
+              maxLines: 3,
+              overflow: TextOverflow.ellipsis,
             ),
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
           ),
-          const SizedBox(height: 10),
-
-          // Answer section
-          Text(
-            answer,
-            style: const TextStyle(
-              fontSize: 14,
-              color: Colors.black54,
+          const SizedBox(width: 15), // Space between question and answer
+          Expanded(
+            flex: 2,
+            child: Text(
+              answer,
+              style: const TextStyle(
+                fontSize: 14,
+                color: Colors.black54,
+              ),
+              maxLines: 3,
+              overflow: TextOverflow.ellipsis,
             ),
-            maxLines: 3,
-            overflow: TextOverflow.ellipsis,
           ),
         ],
       ),
     );
   }
 }
+
