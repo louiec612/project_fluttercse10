@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:project_fluttercse10/main.dart';
 import 'package:carousel_slider/carousel_slider.dart';
-import '../getset.dart';
-import 'homeView.dart';
+import '../../getset.dart';
+import '../Home View/homeView.dart';
 
 class quizView extends StatefulWidget {
   const quizView({super.key});

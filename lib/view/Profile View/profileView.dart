@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:project_fluttercse10/getset.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import 'package:project_fluttercse10/main.dart';
-import '../generator.dart';
+import '../../generator.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
 
 //VIEW FOR PROFILE

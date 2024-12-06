@@ -1,7 +1,7 @@
 // ignore_for_file: camel_case_types, file_names
 
 import 'package:flutter/material.dart';
-import '../getset.dart';
+import '../../getset.dart';
 
 class addFlashcardView extends StatefulWidget {
   const addFlashcardView({super.key});

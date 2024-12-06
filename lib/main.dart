@@ -1,12 +1,12 @@
 import 'package:bootstrap_icons/bootstrap_icons.dart';
 import 'package:flutter/material.dart';
-import 'package:project_fluttercse10/view/deckView.dart';
+import 'package:project_fluttercse10/view/Deck%20View/deckView.dart';
 import 'package:zoom_tap_animation/zoom_tap_animation.dart';
 import 'generator.dart';
-import 'view/homeView.dart';
-import 'view/profileView.dart';
-import 'view/createView.dart';
-import 'view/quizView.dart';
+import 'view/Home View/homeView.dart';
+import 'view/Profile View/profileView.dart';
+import 'view/Create View/createView.dart';
+import 'view/Quiz View/quizView.dart';
 import 'package:project_fluttercse10/getset.dart';
 import 'package:google_fonts/google_fonts.dart';
 

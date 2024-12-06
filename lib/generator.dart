@@ -6,7 +6,7 @@ import 'package:google_generative_ai/google_generative_ai.dart';
 
 
 const apiKey = 'AIzaSyBiTikvtoGbTnJdthLj_BEcXKdhPAxoKW0';
-String topic = "Automata";
+String topic = "Grade 1 Mathematics";
 String numberOfQuestions = "30";
 
 class QuestionAnswerGenerator {
