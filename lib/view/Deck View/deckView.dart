@@ -21,7 +21,7 @@ class deckView extends StatelessWidget {
             decoration: BoxDecoration(
                 color: Theme.of(context).primaryColor,
                 borderRadius:
-                    const BorderRadius.vertical(bottom: Radius.circular(15))),
+                const BorderRadius.vertical(bottom: Radius.circular(15))),
           ),
           Center(
             child: Column(

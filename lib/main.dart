@@ -1,5 +1,6 @@
 import 'package:bootstrap_icons/bootstrap_icons.dart';
 import 'package:flutter/material.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:project_fluttercse10/view/Deck%20View/deckView.dart';
 import 'package:zoom_tap_animation/zoom_tap_animation.dart';
 import 'generator.dart';
@@ -11,9 +12,14 @@ import 'package:project_fluttercse10/getset.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 
+void main() async {
+  // Initialize Hive
+  await Hive.initFlutter();
+  // Open the box
+  await Hive.openBox<Map<String, List<Map<String, String>>>>('decks');
 
-void main() async{
   runApp(const MyApp());
+
   final generator = QuestionAnswerGenerator(apiKey);
   try {
     generateCard.data = await generator.generate();
@@ -26,30 +32,31 @@ void main() async{
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-
   @override
   Widget build(BuildContext context) {
     getWid.wSize = MediaQuery.sizeOf(context).width;
     getHgt.hSize = MediaQuery.sizeOf(context).height;
-    color.col = const Color.fromRGBO(26, 117, 159,1);
+    color.col = const Color.fromRGBO(26, 117, 159, 1);
+
     return MaterialApp(
       theme: ThemeData(
         primaryColor: color.col,
         textTheme: const TextTheme(
           displayMedium: TextStyle(
             color: Color.fromRGBO(17, 20, 76, 1),
-          )
-        )
+          ),
+        ),
       ),
       debugShowCheckedModeBanner: false,
       home: HomePage(),
     );
   }
 }
+
 final GlobalKey<HomePageState> homePageKey = GlobalKey<HomePageState>();
+
 class HomePage extends StatefulWidget {
   HomePage({Key? key}) : super(key: homePageKey);
-
 
   @override
   State<HomePage> createState() => HomePageState();
@@ -60,13 +67,15 @@ class HomePageState extends State<HomePage> {
   final PageController _controller = PageController();
   int _currentIndex = 0;
 
-
   void onButtonPressed(int index) {
-    _controller.animateToPage(index,duration: const Duration(milliseconds: 1) ,curve:Curves.ease);
+    _controller.animateToPage(
+      index,
+      duration: const Duration(milliseconds: 1),
+      curve: Curves.ease,
+    );
     _currentIndex = index;
     setState(() {
-      _fabColor =
-          _currentIndex == 2 ? Theme.of(context).primaryColor : Colors.grey;
+      _fabColor = _currentIndex == 2 ? Theme.of(context).primaryColor : Colors.grey;
     });
   }
 
@@ -90,15 +99,15 @@ class HomePageState extends State<HomePage> {
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       body: PageView(
-          controller: _controller,
-          physics: const NeverScrollableScrollPhysics(),
-          children: const [
-            homeView(),
-            profileView(),
-            AddFlashcardView(),
-            deckView(),
-          ],
-        ),
+        controller: _controller,
+        physics: const NeverScrollableScrollPhysics(),
+        children: const [
+          homeView(),
+          profileView(),
+          AddFlashcardView(),
+          deckView(), // Ensure deckView is defined properly and imported
+        ],
+      ),
     );
   }
 }
@@ -111,7 +120,7 @@ class _bottomAppBar extends StatelessWidget {
     Key? key,
     required this.currentIndex,
     required this.onButtonPressed,
-  });
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -122,13 +131,15 @@ class _bottomAppBar extends StatelessWidget {
             color: Colors.black26,
             blurRadius: 8.0,
             spreadRadius: 5.0,
-            offset: Offset(0.0, 2.0), // changes position of shadow
+            offset: Offset(0.0, 2.0),
           ),
         ],
       ),
       child: ClipRRect(
         borderRadius: const BorderRadius.only(
-            topRight: Radius.circular(15), topLeft: Radius.circular(15)),
+          topRight: Radius.circular(15),
+          topLeft: Radius.circular(15),
+        ),
         child: BottomAppBar(
           color: Colors.white,
           elevation: 20,
@@ -138,7 +149,7 @@ class _bottomAppBar extends StatelessWidget {
             children: [
               ZoomTapAnimation(
                 child: IconButton(
-                  onPressed: () => onButtonPressed(0), // Navigate to page 0
+                  onPressed: () => onButtonPressed(0),
                   icon: const Icon(BootstrapIcons.house_door, size: 25),
                   color: currentIndex == 0
                       ? Theme.of(context).primaryColor
@@ -147,7 +158,7 @@ class _bottomAppBar extends StatelessWidget {
               ),
               ZoomTapAnimation(
                 child: IconButton(
-                  onPressed: () => onButtonPressed(1), // Navigate to page 1
+                  onPressed: () => onButtonPressed(1),
                   icon: const Icon(BootstrapIcons.person, size: 25),
                   color: currentIndex == 1
                       ? Theme.of(context).primaryColor
@@ -183,5 +194,3 @@ class getHeightSize {
 
   double get hSize => _size;
 }
-
-
