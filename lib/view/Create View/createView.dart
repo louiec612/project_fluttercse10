@@ -1,50 +1,97 @@
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:archive/archive.dart';
-import 'package:project_fluttercse10/generator.dart';
-import 'package:project_fluttercse10/test.dart';
-import 'package:sqflite/sqflite.dart';
 import 'package:xml/xml.dart';
 import 'dart:io';
-import 'package:project_fluttercse10/main.dart';
-
-import '../../getset.dart';
-
-final Map<String, String> questionsAndAnswers = generateCard.data;
 
 class AddFlashcardView extends StatefulWidget {
   const AddFlashcardView({super.key});
+
   @override
   State<AddFlashcardView> createState() => _AddFlashcardViewState();
 }
 
 class _AddFlashcardViewState extends State<AddFlashcardView> {
-  String? _text = null;
-
   bool _isChecked = false;
-  bool _isVisible = false;
-  TextEditingController _topicController = TextEditingController();
+  final TextEditingController _topicController = TextEditingController();
   List<MapEntry<String, String>> questionAnswerPairs = [];
   bool _isLoading = false;
 
-  String stateQ = 'A Topic';
-  String stateA = 'Answer';
+  Future<void> importDocxFile() async {
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['docx'],
+    );
 
-  double containerHeight = 50;
+    if (result != null && result.files.single.bytes != null) {
+      try {
+        List<int> bytes = result.files.single.bytes!;
+        Archive archive = ZipDecoder().decodeBytes(bytes);
 
-  void _delayedVisibility() {
-    if (_isVisible == false) {
-      stateQ = 'Question';
-      Future.delayed(const Duration(seconds: 1), () {
+        String? documentXml;
+        for (var file in archive) {
+          if (file.name == 'word/document.xml') {
+            documentXml = String.fromCharCodes(file.content);
+            break;
+          }
+        }
+
+        if (documentXml == null) {
+          throw Exception('Could not find document.xml in the .docx file');
+        }
+
+        XmlDocument xmlDocument = XmlDocument.parse(documentXml);
+        List<String> textList = [];
+        for (var element in xmlDocument.findAllElements('w:t')) {
+          String text = element.text.trim();
+          if (text.isNotEmpty) {
+            textList.add(text);
+          }
+        }
+
+        List<MapEntry<String, String>> flashcards = [];
+        String? currentQuestion;
+        String? currentAnswer;
+
+        for (var line in textList) {
+          if (line.isEmpty) {
+            continue;
+          }
+
+          if (currentQuestion == null) {
+            // This line is a question
+            currentQuestion = line;
+          } else if (currentAnswer == null) {
+            // This line is an answer
+            currentAnswer = line;
+            flashcards.add(MapEntry(currentQuestion, currentAnswer));
+            currentQuestion = null;
+            currentAnswer = null;
+          }
+        }
+
+        if (currentQuestion != null) {
+          print('Warning: There is a question without an answer: "$currentQuestion"');
+        }
+
+        // Update the state with parsed question-answer pairs
         setState(() {
-          _isVisible = true; // Make the widget visible after 2 seconds
+          questionAnswerPairs = flashcards;
         });
-      });
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error reading file: $e')),
+        );
+      }
     } else {
-      stateQ = 'A Topic';
-      _isVisible = false;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('No file selected or invalid file')),
+      );
     }
   }
+
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -81,87 +128,31 @@ class _AddFlashcardViewState extends State<AddFlashcardView> {
           ),
           const SizedBox(height: 20),
 
+          // Topic input and buttons
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: Column(
               children: [
-
-                ////
-                ////TEXT
-
-                AnimatedContainer(
-                  duration:
-                  const Duration(milliseconds: 500), // Animation duration
-                  curve: Curves.easeInOut,
-                  height: _isChecked ? containerHeight + 40 : containerHeight-4,
-                  decoration: BoxDecoration(
-                    border: Border.all(width: 1),
-                    borderRadius: BorderRadius.circular(15),
-                  ),
-                  child: Column(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(10.0,10,0,0),
-                        child: TextField(
-                          onChanged: (value) {
-                            _text = value;
-                          },
-                          controller: _topicController,
-                          decoration: InputDecoration.collapsed(
-                            hintText: 'Enter $stateQ',
-                          ),
-                        ),
-                      ),
-                      Visibility(
-                        visible: _isVisible,
-                        child: Column(
-                          children: [
-                            Divider(
-
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.fromLTRB(10.0,0,0,0),
-                              child: const TextField(
-                                decoration: InputDecoration.collapsed(
-                                  hintText: 'Enter Answer',
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
+                TextField(
+                  controller: _topicController,
+                  decoration: InputDecoration(
+                    hintText: 'Enter A Topic',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
                   ),
                 ),
-                ElevatedButton(
-                  onPressed: () async{
-
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.grey[600],
-                  ),
-                  child: const Text(
-                    'Import',
-                    style: TextStyle(color: Colors.white),
-                  ),
-                ),
-
                 const SizedBox(height: 10),
                 Row(
                   children: [
-                    ///
-                    ///
-                    /// BUTTONS
                     Expanded(
                       child: ElevatedButton(
-                        onPressed: () {
-
-                        },
+                        onPressed: importDocxFile,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.grey[600],
                         ),
                         child: const Text(
-                          'Generate',
+                          'Import',
                           style: TextStyle(color: Colors.white),
                         ),
                       ),
@@ -186,7 +177,6 @@ class _AddFlashcardViewState extends State<AddFlashcardView> {
                             Switch(
                               value: _isChecked,
                               onChanged: (bool value) {
-                                _delayedVisibility();
                                 setState(() {
                                   _isChecked = value;
                                 });
@@ -201,37 +191,46 @@ class _AddFlashcardViewState extends State<AddFlashcardView> {
                     ),
                   ],
                 ),
-
                 const SizedBox(height: 10),
-                // ElevatedButton(
-                //   onPressed: () async {
-                //     String topic = _topicController.text.trim();
-                //     if (topic.isEmpty) {
-                //       ScaffoldMessenger.of(context).showSnackBar(
-                //         const SnackBar(
-                //           content: Text('Please enter a topic!'),
-                //         ),
-                //       );
-                //       return;
-                //     }
-                //     setState(() => _isLoading = true);
-                //
-                //   },
-                //   style: ElevatedButton.styleFrom(
-                //     backgroundColor: Colors.grey[600],
-                //     minimumSize: Size(150, 50),
-                //     padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
-                //     textStyle: const TextStyle(fontSize: 14),
-                //   ),
-                //   child: _isLoading
-                //       ? const CircularProgressIndicator(
-                //     color: Colors.white,
-                //   )
-                //       : const Text(
-                //     'Generate',
-                //     style: TextStyle(color: Colors.white),
-                //   ),
-                // ),
+                ElevatedButton(
+                  onPressed: () async {
+                    String topic = _topicController.text.trim();
+                    if (topic.isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Please enter a topic!'),
+                        ),
+                      );
+                      return;
+                    }
+                    setState(() => _isLoading = true);
+
+                    try {
+                      // Call importDocxFile instead of generateQuestions
+                      await importDocxFile();
+                    } catch (e) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Error: $e')),
+                      );
+                    } finally {
+                      setState(() => _isLoading = false);
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.grey[600],
+                    minimumSize: Size(150, 50),
+                    padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
+                    textStyle: const TextStyle(fontSize: 14),
+                  ),
+                  child: _isLoading
+                      ? const CircularProgressIndicator(
+                    color: Colors.white,
+                  )
+                      : const Text(
+                    'Generate',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
               ],
             ),
           ),
@@ -249,23 +248,23 @@ class _AddFlashcardViewState extends State<AddFlashcardView> {
             ),
           ),
           const SizedBox(height: 10),
-          // Expanded(
-          //   child: Padding(
-          //     padding: const EdgeInsets.symmetric(horizontal: 20),
-          //     child: ListView.builder(
-          //       itemCount: questionAnswerPairs.length,
-          //       itemBuilder: (context, index) {
-          //         final pair = questionAnswerPairs[index];
-          //         return Column(
-          //           children: [
-          //             CardWidget(question: pair.key, answer: pair.value),
-          //             const SizedBox(height: 10),
-          //           ],
-          //         );
-          //       },
-          //     ),
-          //   ),
-          // ),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: ListView.builder(
+                itemCount: questionAnswerPairs.length,
+                itemBuilder: (context, index) {
+                  final pair = questionAnswerPairs[index];
+                  return Column(
+                    children: [
+                      CardWidget(question: pair.key, answer: pair.value),
+                      const SizedBox(height: 10),
+                    ],
+                  );
+                },
+              ),
+            ),
+          ),
         ],
       ),
     );
@@ -327,4 +326,3 @@ class CardWidget extends StatelessWidget {
     );
   }
 }
-
