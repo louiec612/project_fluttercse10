@@ -28,7 +28,7 @@ class _AddFlashcardViewState extends State<AddFlashcardView> {
   bool _isLoading = false;
 
   String stateQ = 'A Topic';
-  String stateA = 'Answer';
+  String stateA = 'AnswerA';
 
   double containerHeight = 50;
 
