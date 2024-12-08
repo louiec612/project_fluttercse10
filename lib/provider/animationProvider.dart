@@ -15,4 +15,9 @@ class animation extends ChangeNotifier{
     notifyListeners();
   }
 
+  void reverseValue(){
+    _value = !_value;
+    notifyListeners();
+  }
+
 }
