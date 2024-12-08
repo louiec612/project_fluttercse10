@@ -1,152 +1,47 @@
 import 'package:flutter/material.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 
 class AddFlashcardView extends StatefulWidget {
   const AddFlashcardView({super.key});
-
   @override
   State<AddFlashcardView> createState() => _AddFlashcardViewState();
 }
 
-List<Map<String, String>> globalDecks = [];
-
 class _AddFlashcardViewState extends State<AddFlashcardView> {
-  TextEditingController _topicController = TextEditingController();
-  TextEditingController _answerController = TextEditingController();
   bool _isChecked = false;
-  bool _isVisible = false;
-  List<Map<String, String>> questionAnswerPairs = []; // Changed to a simple list of maps
-  late Box<Map<String, String>> _flashcardBox;
-  late Box<Map<String, List<Map<String, String>>>> _deckBox; // Updated for decks
-  String? _selectedCardKey;
+  bool _isHoveredImport = false;
+  bool _isHoveredGenerate = false;
+  TextEditingController _topicController = TextEditingController();
 
-  double containerHeight = 50;
-
-  @override
-  void initState() {
-    super.initState();
-    _initializeHive();
-  }
-
-  Future<void> _initializeHive() async {
-    await Hive.initFlutter();
-    _flashcardBox = await Hive.openBox<Map<String, String>>('flashcards');
-    _deckBox = await Hive.openBox<Map<String, List<Map<String, String>>>>('decks');
-    _loadData();
-  }
-
-  void _loadData() {
-    setState(() {
-      questionAnswerPairs = _flashcardBox.keys.map((key) {
-        return _flashcardBox.get(key) as Map<String, String>;
-      }).toList();
-    });
-  }
-
-  void _saveAllCards() {
-    for (var pair in questionAnswerPairs) {
-      _flashcardBox.put(pair['question'] ?? '', pair); // Save using the question as the key
-    }
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Cards saved successfully!')),
-    );
-  }
-
-  void _saveDeck() {
-    _showSaveDeckDialog();
-  }
-
-  void _showSaveDeckDialog() {
-    showDialog<String>(
-      context: context,
-      builder: (BuildContext context) {
-        TextEditingController nameController = TextEditingController();
-        return AlertDialog(
-          title: const Text('Save Deck'),
-          content: TextField(
-            controller: nameController,
-            decoration: const InputDecoration(
-              hintText: 'Enter deck name',
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () {
-                String deckName = nameController.text.trim();
-                if (deckName.isEmpty) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Please enter a name for the deck!')),
-                  );
-                  return;
-                }
-
-                if (_deckBox.containsKey(deckName)) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Deck "$deckName" already exists!')),
-                  );
-                  return;
-                }
-
-                // Save the deck as a Map with the deck name as the key and questionAnswerPairs as the value
-                Map<String, List<Map<String, String>>> deck = {
-                  deckName: List.from(questionAnswerPairs),
-                };
-
-                _deckBox.put(deckName, deck);
-                Navigator.of(context).pop();
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Deck "$deckName" saved successfully!')),
-                );
-              },
-              child: const Text('Save'),
-            ),
-          ],
+  final MaterialStateProperty<Icon?> thumbIcon = MaterialStateProperty.resolveWith<Icon?>(
+        (Set<MaterialState> states) {
+      if (states.contains(MaterialState.selected)) {
+        return const Icon(
+          Icons.check,
+          color: Colors.white,
         );
-      },
-    );
-  }
-
-  void _delayedVisibility() {
-    if (!_isVisible) {
-      Future.delayed(const Duration(seconds: 1), () {
-        setState(() {
-          _isVisible = true;
-        });
-      });
-    } else {
-      setState(() {
-        _isVisible = false;
-      });
-    }
-  }
-
-  void _deleteSelectedCard() {
-    if (_selectedCardKey != null) {
-      setState(() {
-        questionAnswerPairs.removeWhere((pair) => pair['question'] == _selectedCardKey);
-        _flashcardBox.delete(_selectedCardKey);
-        _selectedCardKey = null; // Reset selection
-      });
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Card deleted!')),
+      }
+      return const Icon(
+        Icons.close,
+        color: Colors.white,
       );
-    }
+    },
+  );
+
+  List<Map<String, String>> _cards = []; // List to store the question and answer pairs
+
+  void _delayedVisibility(bool value) {
+    setState(() {
+      _isChecked = value;
+    });
   }
 
-  void _deleteAllCards() {
+  void _addCard(String question, String answer) {
     setState(() {
-      questionAnswerPairs.clear();
-      _flashcardBox.clear();
+      _cards.add({
+        'question': question,
+        'answer': answer,
+      });
     });
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('All cards deleted!')),
-    );
   }
 
   @override
@@ -156,207 +51,310 @@ class _AddFlashcardViewState extends State<AddFlashcardView> {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          const SizedBox(height: 20),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
+          // Blue Background with Profile Section
+          Container(
+            width: MediaQuery.of(context).size.width,
+            height: MediaQuery.of(context).size.height / 3.5,
+            decoration: BoxDecoration(
+              color: Theme.of(context).primaryColor,
+              borderRadius: const BorderRadius.vertical(
+                bottom: Radius.circular(15),
+              ),
+            ),
+            padding: const EdgeInsets.symmetric(vertical: 20),
             child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                AnimatedContainer(
-                  duration: const Duration(milliseconds: 500),
-                  curve: Curves.easeInOut,
-                  height: _isChecked ? containerHeight + 40 : containerHeight - 4,
-                  decoration: BoxDecoration(
-                    border: Border.all(width: 1),
-                    borderRadius: BorderRadius.circular(15),
-                  ),
-                  child: Column(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(10.0, 10, 0, 0),
-                        child: TextField(
-                          controller: _topicController,
-                          decoration: const InputDecoration.collapsed(
-                            hintText: 'Enter Question',
-                          ),
-                        ),
-                      ),
-                      Visibility(
-                        visible: _isVisible,
-                        child: Column(
-                          children: [
-                            Divider(),
-                            Padding(
-                              padding: EdgeInsets.fromLTRB(10.0, 0, 0, 0),
-                              child: TextField(
-                                controller: _answerController,
-                                decoration: const InputDecoration.collapsed(
-                                  hintText: 'Enter Answer',
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
+                const Text(
+                  'Create Your Own FlashCards!',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
                 const SizedBox(height: 10),
-                if (_isChecked) ...[
-                  ElevatedButton(
-                    onPressed: () {
-                      if (_topicController.text.isEmpty || _answerController.text.isEmpty) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Please enter both Question and Answer!')),
-                        );
-                        return;
-                      }
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    CircleAvatar(
+                      radius: 30,
+                      backgroundColor: Colors.grey[400],
+                      child: ClipOval(
+                        child: Image.network(
+                          'https://pop.inquirer.net/files/2021/05/gigachad.jpg',
+                          width: 60,
+                          height: 60,
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    const Text(
+                      'Andrei Castro',
+                      style: TextStyle(color: Colors.white, fontSize: 18),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+
+          const SizedBox(height: 30),
+
+          // Enter A Topic Input
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 500),
+              curve: Curves.easeInOut,
+              height: 60,
+              decoration: BoxDecoration(
+                border: Border.all(width: 1, color: Colors.grey[400]!),
+                borderRadius: BorderRadius.circular(15),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 10),
+                child: TextField(
+                  controller: _topicController,
+                  decoration: const InputDecoration.collapsed(
+                    hintText: 'Enter A Topic',
+                  ),
+                ),
+              ),
+            ),
+          ),
+
+          const SizedBox(height: 20),
+
+          // Import and Front & Back Buttons (Larger)
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Row(
+              children: [
+                Expanded(
+                  child: MouseRegion(
+                    onEnter: (_) {
                       setState(() {
-                        questionAnswerPairs.add({
-                          'question': _topicController.text,
-                          'answer': _answerController.text,
-                        });
-                        _topicController.clear();
-                        _answerController.clear();
-                        _isVisible = false;
-                        _isChecked = false;
+                        _isHoveredImport = true;
                       });
                     },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.green,
+                    onExit: (_) {
+                      setState(() {
+                        _isHoveredImport = false;
+                      });
+                    },
+                    child: Column(
+                      children: [
+                        SizedBox(
+                          height: 50, // Height of the button
+                          width: double.infinity, // Full width
+                          child: ElevatedButton.icon(
+                            onPressed: () {
+                              _addCard("Sample Question", "Sample Answer");
+                              print("question and answer");
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: _isHoveredImport ? Colors.grey[700] : Colors.grey[600],
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              elevation: 5,
+                              shadowColor: Colors.black.withOpacity(0.3),
+                            ),
+                            icon: Icon(Icons.upload, color: Colors.white),
+                            label: AnimatedDefaultTextStyle(
+                              duration: const Duration(milliseconds: 200),
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: _isHoveredImport ? 16 : 14,
+                              ),
+                              child: const Text('Import'),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                    child: const Text(
-                      'Submit',
-                      style: TextStyle(color: Colors.white),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Container(
+                    height: 50, // Height of the button
+                    decoration: BoxDecoration(
+                      color: Colors.grey[600],
+                      borderRadius: BorderRadius.circular(8),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.3),
+                          blurRadius: 5,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Front & Back',
+                            style: TextStyle(
+                              color: _isChecked ? Colors.white : Colors.grey[400],
+                              fontWeight: _isChecked ? FontWeight.normal : FontWeight.w400,
+                            ),
+                          ),
+                          Switch(
+                            thumbIcon: thumbIcon,
+                            value: _isChecked,
+                            onChanged: (bool value) {
+                              _delayedVisibility(value);
+                            },
+                            activeColor: Colors.green,
+                            inactiveThumbColor: Colors.red[400],
+                            inactiveTrackColor: Colors.grey[400],
+                            activeTrackColor: Colors.green.withOpacity(0.5),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          const SizedBox(height: 15),
+
+          // Generate Button with Hover Effect
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: MouseRegion(
+              onEnter: (_) {
+                setState(() {
+                  _isHoveredGenerate = true;
+                });
+              },
+              onExit: (_) {
+                setState(() {
+                  _isHoveredGenerate = false;
+                });
+              },
+              child: Column(
+                children: [
+                  SizedBox(
+                    height: 50, // Height of the button
+                    width: double.infinity, // Full width
+                    child: ElevatedButton.icon(
+                      onPressed: () {
+                        _addCard("Generated Question", "Generated Answer");
+                        print("question and answer");
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: _isHoveredGenerate ? Colors.grey[700] : Colors.grey[600],
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        elevation: 5,
+                        shadowColor: Colors.black.withOpacity(0.3),
+                      ),
+                      icon: Icon(Icons.autorenew, color: Colors.white),
+                      label: AnimatedDefaultTextStyle(
+                        duration: const Duration(milliseconds: 200),
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: _isHoveredGenerate ? 16 : 14,
+                        ),
+                        child: const Text('Generate'),
+                      ),
                     ),
                   ),
                 ],
-                const SizedBox(height: 10),
-                Row(
-                  children: [
-                    Expanded(
-                      child: ElevatedButton(
-                        onPressed: _saveAllCards,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.blue,
-                        ),
-                        child: const Text(
-                          'Save',
-                          style: TextStyle(color: Colors.white),
-                        ),
-                      ),
+              ),
+            ),
+          ),
+
+          const SizedBox(height: 20),
+
+          // Divider
+          const Divider(thickness: 1),
+
+          // Added Cards Section
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 20),
+            child: Text(
+              'Added Cards',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
+                color: Colors.black,
+              ),
+            ),
+          ),
+
+          // Display each card in a styled box
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: ListView.builder(
+                itemCount: _cards.length,
+                itemBuilder: (context, index) {
+                  final card = _cards[index];
+                  return Card(
+                    margin: const EdgeInsets.symmetric(vertical: 8),
+                    elevation: 4,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
                     ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: ElevatedButton(
-                        onPressed: _deleteAllCards,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.red,
-                        ),
-                        child: const Text(
-                          'Delete All',
-                          style: TextStyle(color: Colors.white),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 10),
-                Row(
-                  children: [
-                    Expanded(
-                      child: ElevatedButton(
-                        onPressed: _saveDeck,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.purple, // New color for the deck save button
-                        ),
-                        child: const Text(
-                          'Save Deck',
-                          style: TextStyle(color: Colors.white),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: ElevatedButton(
-                        onPressed: () {} // Placeholder for additional actions
-                        ,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.grey[600],
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Text(
-                              'Front & Back',
-                              style: TextStyle(color: Colors.white),
+                    child: Padding(
+                      padding: const EdgeInsets.all(10),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Question:',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                              color: Colors.black,
                             ),
-                            const SizedBox(width: 5),
-                            Switch(
-                              value: _isChecked,
-                              onChanged: (bool value) {
-                                _delayedVisibility();
-                                setState(() {
-                                  _isChecked = value;
-                                });
-                              },
-                              activeColor: Colors.white,
-                              activeTrackColor: Colors.teal,
-                              inactiveTrackColor: Colors.grey[400],
+                          ),
+                          const SizedBox(height: 5),
+                          Text(
+                            card['question'] ?? '',
+                            style: const TextStyle(
+                              fontSize: 14,
+                              color: Colors.black87,
                             ),
-                          ],
-                        ),
+                          ),
+                          const SizedBox(height: 10),
+                          const Divider(
+                            thickness: 1,
+                            color: Colors.grey,
+                          ),
+                          const SizedBox(height: 10),
+                          const Text(
+                            'Answer:',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                              color: Colors.black,
+                            ),
+                          ),
+                          const SizedBox(height: 5),
+                          Text(
+                            card['answer'] ?? '',
+                            style: const TextStyle(
+                              fontSize: 14,
+                              color: Colors.black87,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                  ],
-                ),
-                const SizedBox(height: 10),
-                // Dropdown for selecting a card to delete
-                DropdownButton<String>(
-                  value: _selectedCardKey,
-                  hint: const Text('Select a card to delete'),
-                  items: questionAnswerPairs.map((pair) {
-                    return DropdownMenuItem<String>(
-                      value: pair['question'],
-                      child: Text(pair['question'] ?? ''),
-                    );
-                  }).toList(),
-                  onChanged: (value) {
-                    setState(() {
-                      _selectedCardKey = value;
-                    });
-                  },
-                ),
-                ElevatedButton(
-                  onPressed: _deleteSelectedCard,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.red,
-                  ),
-                  child: const Text(
-                    'Delete Selected Card',
-                    style: TextStyle(color: Colors.white),
-                  ),
-                ),
-                const SizedBox(height: 20),
-                // "Added Cards" section
-                const Text(
-                  'Added Cards',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 10),
-                questionAnswerPairs.isEmpty
-                    ? const Text('No cards added yet.')
-                    : Column(
-                  children: questionAnswerPairs.map((pair) {
-                    return Card(
-                      margin: const EdgeInsets.symmetric(vertical: 5),
-                      child: ListTile(
-                        title: Text('Q: ${pair['question']}'),
-                        subtitle: Text('A: ${pair['answer']}'),
-                      ),
-                    );
-                  }).toList(),
-                ),
-              ],
+                  );
+                },
+              ),
             ),
           ),
         ],
