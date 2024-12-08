@@ -1,7 +1,14 @@
 import 'package:bootstrap_icons/bootstrap_icons.dart';
 import 'package:flutter/material.dart';
+import 'package:project_fluttercse10/provider/animationProvider.dart';
+import 'package:project_fluttercse10/provider/cardProvider.dart';
+import 'package:project_fluttercse10/provider/deckProvider.dart';
+import 'package:project_fluttercse10/view/Create%20View/createViewRevision.dart';
 import 'package:project_fluttercse10/view/Deck%20View/deckView.dart';
+import 'package:provider/provider.dart';
+import 'package:sqflite/sqflite.dart';
 import 'package:zoom_tap_animation/zoom_tap_animation.dart';
+import 'db_service/sqf.dart';
 import 'generator.dart';
 import 'view/Home View/homeView.dart';
 import 'view/Profile View/profileView.dart';
@@ -9,14 +16,20 @@ import 'view/Create View/createView.dart';
 import 'view/Quiz View/quizView.dart';
 import 'package:project_fluttercse10/getset.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:sqflite_common_ffi_web/sqflite_ffi_web.dart';
 
 
 
 void main() async{
+
+  WidgetsFlutterBinding.ensureInitialized();
+  databaseFactory = databaseFactoryFfiWeb;
+  await DbHelper.dbHelper.initDatabase();
   runApp(const MyApp());
+
   final generator = QuestionAnswerGenerator(apiKey);
   try {
-    generateCard.data = await generator.generate();
+    generateCard.data = await generator.generate('Automata');
     print(generateCard.data);
   } catch (e) {
     print('Error: $e');
@@ -32,17 +45,24 @@ class MyApp extends StatelessWidget {
     getWid.wSize = MediaQuery.sizeOf(context).width;
     getHgt.hSize = MediaQuery.sizeOf(context).height;
     color.col = const Color.fromRGBO(26, 117, 159,1);
-    return MaterialApp(
-      theme: ThemeData(
-        primaryColor: color.col,
-        textTheme: const TextTheme(
-          displayMedium: TextStyle(
-            color: Color.fromRGBO(17, 20, 76, 1),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (context) => animation()),
+        ChangeNotifierProvider(create: (context) => deckProvider()),
+        ChangeNotifierProvider<CardClass>(create: (context) => CardClass())
+      ],
+      child: MaterialApp(
+        theme: ThemeData(
+          primaryColor: color.col,
+          textTheme: const TextTheme(
+            displayMedium: TextStyle(
+              color: Color.fromRGBO(17, 20, 76, 1),
+            )
           )
-        )
+        ),
+        debugShowCheckedModeBanner: false,
+        home: HomePage(),
       ),
-      debugShowCheckedModeBanner: false,
-      home: HomePage(),
     );
   }
 }
@@ -79,23 +99,13 @@ class HomePageState extends State<HomePage> {
         currentIndex: _currentIndex,
         onButtonPressed: onButtonPressed,
       ),
-      floatingActionButton: FloatingActionButton.large(
-        backgroundColor: Colors.white,
-        foregroundColor: _fabColor,
-        onPressed: () {
-          onButtonPressed(2);
-        },
-        shape: const CircleBorder(),
-        child: const Icon(Icons.add),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       body: PageView(
           controller: _controller,
           physics: const NeverScrollableScrollPhysics(),
           children: const [
             homeView(),
             profileView(),
-            AddFlashcardView(),
+            addFlashCardView(),
             deckView(),
           ],
         ),
@@ -141,6 +151,24 @@ class _bottomAppBar extends StatelessWidget {
                   onPressed: () => onButtonPressed(0), // Navigate to page 0
                   icon: const Icon(BootstrapIcons.house_door, size: 25),
                   color: currentIndex == 0
+                      ? Theme.of(context).primaryColor
+                      : Colors.grey,
+                ),
+              ),
+              ZoomTapAnimation(
+                child: IconButton(
+                  onPressed: () => onButtonPressed(2), // Navigate to page 0
+                  icon: const Icon(Icons.add, size: 25),
+                  color: currentIndex == 2
+                      ? Theme.of(context).primaryColor
+                      : Colors.grey,
+                ),
+              ),
+              ZoomTapAnimation(
+                child: IconButton(
+                  onPressed: () => onButtonPressed(3), // Navigate to page 0
+                  icon: const Icon(Icons.view_agenda_outlined, size: 25),
+                  color: currentIndex == 3
                       ? Theme.of(context).primaryColor
                       : Colors.grey,
                 ),

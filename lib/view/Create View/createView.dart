@@ -3,14 +3,17 @@ import 'package:file_picker/file_picker.dart';
 import 'package:archive/archive.dart';
 import 'package:project_fluttercse10/generator.dart';
 import 'package:project_fluttercse10/test.dart';
+import 'package:project_fluttercse10/widgets/cardsWidget.dart';
+import 'package:provider/provider.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:xml/xml.dart';
 import 'dart:io';
 import 'package:project_fluttercse10/main.dart';
 
 import '../../getset.dart';
+import '../../provider/cardProvider.dart';
 
-final Map<String, String> questionsAndAnswers = generateCard.data;
+// final Map<String, String> questionsAndAnswers = generateCard.data;
 
 class AddFlashcardView extends StatefulWidget {
   const AddFlashcardView({super.key});
@@ -23,12 +26,9 @@ class _AddFlashcardViewState extends State<AddFlashcardView> {
 
   bool _isChecked = false;
   bool _isVisible = false;
-  TextEditingController _topicController = TextEditingController();
-  List<MapEntry<String, String>> questionAnswerPairs = [];
-  bool _isLoading = false;
-
+  // List<MapEntry<String, String>> questionAnswerPairs = [];
   String stateQ = 'A Topic';
-  String stateA = 'AnswerA';
+  String stateA = 'Answer';
 
   double containerHeight = 50;
 
@@ -48,195 +48,180 @@ class _AddFlashcardViewState extends State<AddFlashcardView> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
+    return Consumer<CardClass>(builder: (BuildContext context,provider,Widget? child)=>Column(
         children: [
           // Header with profile section
           Container(
-            width: MediaQuery.of(context).size.width,
-            height: MediaQuery.of(context).size.height / 2.8,
-            decoration: BoxDecoration(
-              color: Theme.of(context).primaryColor,
-              borderRadius: const BorderRadius.vertical(
-                bottom: Radius.circular(15),
-              ),
+            decoration: const BoxDecoration(
+                color: Colors.blue,
+      borderRadius:
+      BorderRadius.vertical(bottom: Radius.circular(25))
             ),
-            padding: const EdgeInsets.symmetric(vertical: 20),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                CircleAvatar(
-                  radius: 30,
-                  backgroundColor: Colors.grey[400],
-                ),
-                const SizedBox(width: 10),
-                const Text(
-                  'Andrei Castro',
-                  style: TextStyle(color: Colors.white, fontSize: 18),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 20),
 
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Column(
-              children: [
+              child: Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: Column(
+                  children: [
+                  // DropdownMenu(dropdownMenuEntries: dropdownMenuEntries)
+                    const SizedBox(height:20),
+                    ////TEXT
+                    AnimatedContainer(
+                      duration:
+                      const Duration(milliseconds: 500), // Animation duration
+                      curve: Curves.easeInOut,
 
-                ////
-                ////TEXT
-
-                AnimatedContainer(
-                  duration:
-                  const Duration(milliseconds: 500), // Animation duration
-                  curve: Curves.easeInOut,
-                  height: _isChecked ? containerHeight + 40 : containerHeight-4,
-                  decoration: BoxDecoration(
-                    border: Border.all(width: 1),
-                    borderRadius: BorderRadius.circular(15),
-                  ),
-                  child: Column(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(10.0,10,0,0),
-                        child: TextField(
-                          onChanged: (value) {
-                            _text = value;
-                          },
-                          controller: _topicController,
-                          decoration: InputDecoration.collapsed(
-                            hintText: 'Enter $stateQ',
-                          ),
-                        ),
+                      height: _isChecked ? containerHeight + 40 : containerHeight-4,
+                      decoration: BoxDecoration(
+                        color:Colors.white,
+                        border: Border.all(width: 1),
+                        borderRadius: BorderRadius.circular(15),
                       ),
-                      Visibility(
-                        visible: _isVisible,
-                        child: Column(
-                          children: [
-                            Divider(
-
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.fromLTRB(10.0,0,0,0),
-                              child: const TextField(
-                                decoration: InputDecoration.collapsed(
-                                  hintText: 'Enter Answer',
-                                ),
+                      child: Column(
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(10.0,10,0,0),
+                            child: TextField(
+                              controller: provider.promptController,
+                              decoration: InputDecoration.collapsed(
+                                hintText: 'Enter $stateQ',
                               ),
                             ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                ElevatedButton(
-                  onPressed: () async{
+                          ),
+                          Visibility(
+                            visible: _isVisible,
+                            child: const Column(
+                              children: [
+                                Divider(
 
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.grey[600],
-                  ),
-                  child: const Text(
-                    'Import',
-                    style: TextStyle(color: Colors.white),
-                  ),
-                ),
-
-                const SizedBox(height: 10),
-                Row(
-                  children: [
-                    ///
-                    ///
-                    /// BUTTONS
-                    Expanded(
-                      child: ElevatedButton(
-                        onPressed: () {
-
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.grey[600],
-                        ),
-                        child: const Text(
-                          'Generate',
-                          style: TextStyle(color: Colors.white),
-                        ),
+                                ),
+                                Padding(
+                                  padding: EdgeInsets.fromLTRB(10.0,0,0,0),
+                                  child: TextField(
+                                    decoration: InputDecoration.collapsed(
+                                      hintText: 'Enter Answer',
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: ElevatedButton(
-                        onPressed: () {
-                          // Add functionality for Front & Back button here
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.grey[600],
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Text(
-                              'Front & Back',
+                    ElevatedButton(
+                      onPressed: () async{
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.grey[600],
+                      ),
+                      child: const Text(
+                        'Import',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                    ElevatedButton(
+                      onPressed: () async{
+                        provider.deleteAllCards();
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.grey[600],
+                      ),
+                      child: const Text(
+                        'Delete',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: ElevatedButton(
+                            onPressed: () {
+                              if(_isVisible == false){
+                                provider.generateAndInsertQuestions();
+                                print('Prompt ${provider.promptController.text}');
+                              }
+
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.grey[600],
+                            ),
+                            child: const Text(
+                              'Generate',
                               style: TextStyle(color: Colors.white),
                             ),
-                            const SizedBox(width: 5),
-                            Switch(
-                              value: _isChecked,
-                              onChanged: (bool value) {
-                                _delayedVisibility();
-                                setState(() {
-                                  _isChecked = value;
-                                });
-                              },
-                              activeColor: Colors.white,
-                              activeTrackColor: Colors.teal,
-                              inactiveTrackColor: Colors.grey[400],
-                            ),
-                          ],
+                          ),
                         ),
-                      ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: ElevatedButton(
+                            onPressed: () {
+                              // Add functionality for Front & Back button here
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.grey[600],
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Text(
+                                  'Front & Back',
+                                  style: TextStyle(color: Colors.white),
+                                ),
+                                const SizedBox(width: 5),
+                                Switch(
+                                  value: _isChecked,
+                                  onChanged: (bool value) {
+                                    _delayedVisibility();
+                                    setState(() {
+                                      _isChecked = value;
+                                    });
+                                  },
+                                  activeColor: Colors.white,
+                                  activeTrackColor: Colors.teal,
+                                  inactiveTrackColor: Colors.grey[400],
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
+                    const SizedBox(height: 10),
+                    // ElevatedButton(
+                    //   onPressed: () async {
+                    //     String topic = _topicController.text.trim();
+                    //     if (topic.isEmpty) {
+                    //       ScaffoldMessenger.of(context).showSnackBar(
+                    //         const SnackBar(
+                    //           content: Text('Please enter a topic!'),
+                    //         ),
+                    //       );
+                    //       return;
+                    //     }
+                    //     setState(() => _isLoading = true);
+                    //
+                    //   },
+                    //   style: ElevatedButton.styleFrom(
+                    //     backgroundColor: Colors.grey[600],
+                    //     minimumSize: Size(150, 50),
+                    //     padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
+                    //     textStyle: const TextStyle(fontSize: 14),
+                    //   ),
+                    //   child: _isLoading
+                    //       ? const CircularProgressIndicator(
+                    //     color: Colors.white,
+                    //   )
+                    //       : const Text(
+                    //     'Generate',
+                    //     style: TextStyle(color: Colors.white),
+                    //   ),
+                    // ),
                   ],
                 ),
-
-                const SizedBox(height: 10),
-                // ElevatedButton(
-                //   onPressed: () async {
-                //     String topic = _topicController.text.trim();
-                //     if (topic.isEmpty) {
-                //       ScaffoldMessenger.of(context).showSnackBar(
-                //         const SnackBar(
-                //           content: Text('Please enter a topic!'),
-                //         ),
-                //       );
-                //       return;
-                //     }
-                //     setState(() => _isLoading = true);
-                //
-                //   },
-                //   style: ElevatedButton.styleFrom(
-                //     backgroundColor: Colors.grey[600],
-                //     minimumSize: Size(150, 50),
-                //     padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
-                //     textStyle: const TextStyle(fontSize: 14),
-                //   ),
-                //   child: _isLoading
-                //       ? const CircularProgressIndicator(
-                //     color: Colors.white,
-                //   )
-                //       : const Text(
-                //     'Generate',
-                //     style: TextStyle(color: Colors.white),
-                //   ),
-                // ),
-              ],
+              ),
             ),
-          ),
           const SizedBox(height: 20),
-          const Divider(thickness: 1),
           const Padding(
             padding: EdgeInsets.symmetric(horizontal: 20),
             child: Text(
@@ -247,6 +232,13 @@ class _AddFlashcardViewState extends State<AddFlashcardView> {
                 color: Colors.black,
               ),
             ),
+          ),
+          Expanded(
+            child: ListView.builder(itemCount
+                : provider.allCards.length,
+              itemBuilder: (context,index){
+                return CardWidget(provider.allCards[index]);
+              },),
           ),
           const SizedBox(height: 10),
           // Expanded(
@@ -266,62 +258,6 @@ class _AddFlashcardViewState extends State<AddFlashcardView> {
           //     ),
           //   ),
           // ),
-        ],
-      ),
-    );
-  }
-}
-
-class CardWidget extends StatelessWidget {
-  final String question;
-  final String answer;
-
-  const CardWidget({required this.question, required this.answer, super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(15),
-      decoration: BoxDecoration(
-        color: Colors.grey[100],
-        borderRadius: BorderRadius.circular(10),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.2),
-            blurRadius: 5,
-          ),
-        ],
-      ),
-      width: double.infinity,
-      height: 120,
-      child: Row(
-        children: [
-          Expanded(
-            flex: 3,
-            child: Text(
-              question,
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-                color: Colors.black87,
-              ),
-              maxLines: 3,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-          const SizedBox(width: 15),
-          Expanded(
-            flex: 2,
-            child: Text(
-              answer,
-              style: const TextStyle(
-                fontSize: 14,
-                color: Colors.black54,
-              ),
-              maxLines: 3,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
         ],
       ),
     );

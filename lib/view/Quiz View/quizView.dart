@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:project_fluttercse10/main.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:provider/provider.dart';
 import '../../getset.dart';
+import '../../provider/cardProvider.dart';
 import '../Home View/homeView.dart';
 
 class quizView extends StatefulWidget {
@@ -13,13 +15,15 @@ class quizView extends StatefulWidget {
 }
 
 class _quizViewState extends State<quizView> {
+
+
   int _current = 0;
   CarouselSliderController buttonCarouselController =
       CarouselSliderController();
   String cardName = "Flashcard Name";
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return Consumer<CardClass>(builder: (BuildContext context,provider,Widget? child)=>Scaffold(
       body: Center(
         child: Column(
           children: [
@@ -73,7 +77,7 @@ class _quizViewState extends State<quizView> {
           ],
         ),
       ),
-    );
+    ),);
   }
 }
 
