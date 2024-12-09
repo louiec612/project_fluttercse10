@@ -1,8 +1,6 @@
 import 'package:bootstrap_icons/bootstrap_icons.dart';
 import 'package:flutter/material.dart';
-import 'package:project_fluttercse10/view/deckView.dart';
 import 'package:zoom_tap_animation/zoom_tap_animation.dart';
-import 'generator.dart';
 import 'view/homeView.dart';
 import 'view/profileView.dart';
 import 'view/createView.dart';
@@ -10,59 +8,51 @@ import 'view/quizView.dart';
 import 'package:project_fluttercse10/getset.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-
-void main() async{
+void main() {
   runApp(const MyApp());
-  final generator = QuestionAnswerGenerator(apiKey);
-  try {
-    generateCard.data = await generator.generate();
-    print(generateCard.data);
-  } catch (e) {
-    print('Error: $e');
-  }
 }
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-
   @override
   Widget build(BuildContext context) {
     getWid.wSize = MediaQuery.sizeOf(context).width;
     getHgt.hSize = MediaQuery.sizeOf(context).height;
-    color.col = const Color.fromRGBO(26, 117, 159,1);
     return MaterialApp(
       theme: ThemeData(
-        primaryColor: color.col,
-        textTheme: const TextTheme(
+        primaryColor: const Color.fromRGBO(26, 117, 159,1),
+        textTheme: TextTheme(
           displayMedium: TextStyle(
             color: Color.fromRGBO(17, 20, 76, 1),
           )
         )
       ),
       debugShowCheckedModeBanner: false,
-      home: HomePage(),
+      home: const HomePage(),
     );
   }
 }
-final GlobalKey<HomePageState> homePageKey = GlobalKey<HomePageState>();
-class HomePage extends StatefulWidget {
-  HomePage({Key? key}) : super(key: homePageKey);
 
+class HomePage extends StatefulWidget {
+  const HomePage({super.key});
 
   @override
-  State<HomePage> createState() => HomePageState();
+  State<HomePage> createState() => _HomePageState();
 }
 
-class HomePageState extends State<HomePage> {
+class _HomePageState extends State<HomePage> {
   Color _fabColor = Colors.grey;
   final PageController _controller = PageController();
   int _currentIndex = 0;
+  void _onPageChanged(int index) {
+    setState(() {
+      _currentIndex = index;
+    });
+  }
 
-
-  void onButtonPressed(int index) {
-    _controller.animateToPage(index,duration: const Duration(milliseconds: 1) ,curve:Curves.ease);
-    _currentIndex = index;
+  void _onButtonPressed(int index) {
+    _controller.animateToPage(index,duration: Duration(milliseconds: 1) ,curve:Curves.ease);
     setState(() {
       _fabColor =
           _currentIndex == 2 ? Theme.of(context).primaryColor : Colors.grey;
@@ -76,13 +66,13 @@ class HomePageState extends State<HomePage> {
       extendBody: true,
       bottomNavigationBar: _bottomAppBar(
         currentIndex: _currentIndex,
-        onButtonPressed: onButtonPressed,
+        onButtonPressed: _onButtonPressed,
       ),
       floatingActionButton: FloatingActionButton.large(
         backgroundColor: Colors.white,
         foregroundColor: _fabColor,
         onPressed: () {
-          onButtonPressed(2);
+          _onButtonPressed(3);
         },
         shape: const CircleBorder(),
         child: const Icon(Icons.add),
@@ -90,12 +80,12 @@ class HomePageState extends State<HomePage> {
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       body: PageView(
           controller: _controller,
-          physics: const NeverScrollableScrollPhysics(),
+          onPageChanged: _onPageChanged,
+          physics: NeverScrollableScrollPhysics(),
           children: const [
             homeView(),
             profileView(),
-            addFlashcardView(),
-            deckView(),
+            quizView(),
           ],
         ),
     );
@@ -182,5 +172,4 @@ class getHeightSize {
 
   double get hSize => _size;
 }
-
 
