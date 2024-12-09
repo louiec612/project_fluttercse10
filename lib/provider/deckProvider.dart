@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../db_service/sqf.dart';
-
+import '../model/cardModel.dart';
 
 class deckProvider with ChangeNotifier {
   String _selectedValue = 'no_table'; // Default selected value
@@ -34,11 +34,11 @@ class deckProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  Future<int> getCount(String table) async {
-    var a = await DbHelper.dbHelper.countRows(table);
-    notifyListeners();
-    return a;
-  }
+  // Future<int> getCount(String table) async {
+  //   var a = await DbHelper.dbHelper.countRows(table);
+  //   notifyListeners();
+  //   return a;
+  // }
 
 
 

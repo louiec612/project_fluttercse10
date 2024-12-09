@@ -13,81 +13,85 @@ class CardWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    bool focus = false;
 
     return InkWell(
         child: Column(
           children: [
             SizedBox(height:10),
-            Container(
-              height: 100,
-              width: 350,decoration: BoxDecoration(
-              color: Colors.white, // Background color of the box
-              borderRadius: BorderRadius.circular(10), // Rounded corners
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.grey.withOpacity(0.5), // Shadow color with opacity
-                  spreadRadius: 5, // How much the shadow spreads
-                  blurRadius: 7, // Softness of the shadow
-                  offset: Offset(0, 3), // Offset in x and y directions
-                ),
-              ],
-            ),
-              child: ListTile(// Background color of the tile
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10), // Rounded corners
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20.0),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  border: Border.all(color: Color.fromARGB(228,227,233,255),width: 3),
+                  borderRadius: BorderRadius.circular(15),
+              ),
+                child: ListTile(// Background color of the tile
+                  titleAlignment: ListTileTitleAlignment.top,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10), // Rounded corners
+                    ),
+                  title: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(card.question,style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16
+                      ),),
+                      Divider(indent: 5,),
+                      Text(card.answer)
+                    ],
                   ),
-                title: Text(card.question,style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                  color: Colors.black,
-                ),),
-                subtitle: Text(card.answer),
-                trailing:  PopupMenuButton(
-                  itemBuilder: (BuildContext context) =>
-                  <PopupMenuEntry>[
-                    PopupMenuItem(
-                      child: const Text('Delete'),
-                      onTap: (){
-                        provider.deleteCard(card);
-                      },
-                    ),
-                    PopupMenuItem(
-                      child: const Text('Edit'),
-                      onTap: (){
-                        provider.questionController.text = card.question;
-                        provider.answerController.text = card.answer;
-                        showDialog<String>(
-                        context: context,
-                        builder: (BuildContext context) => AlertDialog(
-                          title: const Text('Confirmation'),
-                          content: const Text('AlertDialog description'),
-                          actions: <Widget>[
-                            TextField(
-                              controller: provider.questionController,
-                            ),
-                            TextField(
-                              controller: provider.answerController,
-                            ),
-                            TextButton(
-                              onPressed: () => Navigator.pop(context, 'Cancel'),
-                              child: const Text('Cancel'),
-                            ),
-                            TextButton(
-                              onPressed: (){provider.updateCard(card);
-                              Navigator.pop(context, 'OK');
-                                },
-                              child: const Text('OK'),
-                            ),
-                          ],
+                  trailing:  Padding(
+                    padding: const EdgeInsets.all(0),
+                    child: PopupMenuButton(
+                      itemBuilder: (BuildContext context) =>
+                      <PopupMenuEntry>[
+                        PopupMenuItem(
+                          child: const Text('Delete'),
+                          onTap: (){
+                            provider.deleteCard(card);
+                          },
                         ),
-                      );}
+                        PopupMenuItem(
+                          child: const Text('Edit'),
+                          onTap: (){
+                            provider.questionController.text = card.question;
+                            provider.answerController.text = card.answer;
+                            showDialog<String>(
+                            context: context,
+                            builder: (BuildContext context) => AlertDialog(
+                              title: const Text('Confirmation'),
+                              content: const Text('AlertDialog description'),
+                              actions: <Widget>[
+                                TextField(
+                                  controller: provider.questionController,
+                                ),
+                                TextField(
+                                  controller: provider.answerController,
+                                ),
+                                TextButton(
+                                  onPressed: () => Navigator.pop(context, 'Cancel'),
+                                  child: const Text('Cancel'),
+                                ),
+                                TextButton(
+                                  onPressed: (){provider.updateCard(card);
+                                  Navigator.pop(context, 'OK');
+                                    },
+                                  child: const Text('OK'),
+                                ),
+                              ],
+                            ),
+                          );}
+                        ),
+                      ],
                     ),
-                  ],
+                  ),
                 ),
               ),
             ),
             SizedBox(height:10),
-            Divider(),
           ],
         ),
 

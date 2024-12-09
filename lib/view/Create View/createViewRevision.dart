@@ -56,6 +56,11 @@ class _addFlashCardViewState extends State<addFlashCardView> {
               ],
             ),
           ),
+          const Divider(indent: 50, endIndent: 50,),
+          Text('Recently Added ${provider.allCards.length}',style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 25,
+          ),),
           Expanded(
             child: ListView.builder(
               itemCount: provider.allCards.length,
@@ -181,7 +186,7 @@ class changeType extends StatelessWidget {
                     Switch(
                       value: give.value,
                       onChanged: (bool value) {
-                        give.setValue(value);
+                        give.setSwitchValue(value);
                         if (value)
                           give.setType('Question');
                         else
@@ -367,7 +372,7 @@ class _importButtonState extends State<importButton> {
   }
 }
 
-class createBar extends StatelessWidget {
+class createBar extends StatefulWidget {
   final CardClass provider;
 
   const createBar({
@@ -376,30 +381,42 @@ class createBar extends StatelessWidget {
   });
 
   @override
+  State<createBar> createState() => _createBarState();
+}
+
+class _createBarState extends State<createBar> {
+  @override
   Widget build(BuildContext context) {
+
     double containerHeight = 50;
+
+
     return Consumer<animation>(
       builder: (BuildContext context, give, Widget? child) => AnimatedContainer(
         width: 350,
         duration: const Duration(milliseconds: 500), // Animation duration
         curve: Curves.easeInOut,
-
-        height: give.value ? containerHeight + 40 : containerHeight - 4,
+        height: give.value ? containerHeight + 40 : containerHeight,
         decoration: BoxDecoration(
           color: Colors.white,
-          border: Border.all(width: 1),
+          border: Border.all(color: Color.fromARGB(228,227,233,255),width: 3),
           borderRadius: BorderRadius.circular(15),
         ),
         child: Column(
           children: [
             Padding(
               padding: const EdgeInsets.fromLTRB(10.0, 10, 0, 0),
-              child: TextField(
-                controller: give.value
-                    ? provider.questionController
-                    : provider.promptController,
-                decoration: InputDecoration.collapsed(
-                  hintText: give.value ? 'Enter Question' : 'Enter A Topic',
+              child: InkWell(
+                onTap: (){
+
+                },
+                child: TextField(
+                  controller: give.value
+                      ? widget.provider.questionController
+                      : widget.provider.promptController,
+                  decoration: InputDecoration.collapsed(
+                    hintText: give.value ? 'Enter Question' : 'Enter A Topic',
+                  ),
                 ),
               ),
             ),
@@ -410,11 +427,11 @@ class createBar extends StatelessWidget {
                 child: give.value
                     ? Column(
                         children: [
-                          const Divider(),
+                          const Divider(endIndent: 5, indent: 5),
                           Padding(
                             padding: const EdgeInsets.fromLTRB(10.0, 0, 0, 0),
                             child: TextField(
-                              controller: provider.answerController,
+                              controller: widget.provider.answerController,
                               decoration: const InputDecoration.collapsed(
                                 hintText: 'Enter Answer',
                               ),

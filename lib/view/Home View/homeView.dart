@@ -55,7 +55,6 @@ class _homeViewState extends State<homeView> {
               ),
             ),
           ),
-
           Column(
             children: [
               const SizedBox(height: 160),
@@ -80,7 +79,7 @@ class _homeViewState extends State<homeView> {
                         Text("Search Flashcards",style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),),
                         SizedBox(height: 10,),
                         Text("It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout."),
-                        SizedBox(height: 30),
+                        SizedBox(height: 10),
                         TextField( decoration: InputDecoration( hintText: 'Search Here', border: OutlineInputBorder( borderRadius: BorderRadius.all(Radius.circular(12)), ), prefixIcon: Icon(Icons.search),
                         ),
                         ),
@@ -115,13 +114,13 @@ class _homeViewState extends State<homeView> {
                 ],
               ),
               Padding(
-                padding: const EdgeInsets.all(20.0),
+                padding: const EdgeInsets.all(10.0),
                 child: GridView.builder(
                   shrinkWrap: true,
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 3,
-                    crossAxisSpacing: 10.0,
-                    mainAxisSpacing: 10.0,
+                    crossAxisSpacing: 5.0,
+                    mainAxisSpacing: 5.0,
                   ),
                   itemCount: 6,
                   itemBuilder: (context, index) {
@@ -130,16 +129,9 @@ class _homeViewState extends State<homeView> {
                           child: Container(
                             decoration: BoxDecoration(
                               color: Colors.white,
-                              border: Border.all(color: Color.fromARGB(228,227,233,255),width: 2),
+                              border: Border.all(color: Color.fromARGB(228,227,233,255),width: 3),
                               borderRadius: BorderRadius.circular(15),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.grey.withOpacity(0.2), // Shadow color
-                                  spreadRadius: 1, // Spread radius
-                                  blurRadius: 5, // Blur radius
-                                  offset: Offset(0, 1),
-                                )
-                              ]
+
                             ),
                             child: InkWell(
                               onTap: () {

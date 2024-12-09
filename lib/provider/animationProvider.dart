@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 class animation extends ChangeNotifier{
   bool _value = false;
 
+  bool _tapped = false;
+  bool get tapped => _tapped;
+
   String _type = 'A Topic';
 
   String get type => _type;
@@ -14,7 +17,7 @@ class animation extends ChangeNotifier{
     _value = !_value;
     notifyListeners();
   }
-  void setValue(bool newValue) {
+  void setSwitchValue(bool newValue) {
     _value = newValue;
     notifyListeners();
   }
@@ -26,6 +29,11 @@ class animation extends ChangeNotifier{
 
   void setType(String text) {
     _type = text;
+    notifyListeners();
+  }
+
+  void reversetapped(){
+    _tapped = !_tapped;
     notifyListeners();
   }
 

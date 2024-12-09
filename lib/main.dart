@@ -12,6 +12,7 @@ import 'db_service/sqf.dart';
 import 'view/Home View/homeView.dart';
 import 'view/Profile View/profileView.dart';
 import 'package:project_fluttercse10/getset.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import 'package:sqflite_common_ffi_web/sqflite_ffi_web.dart';
 
@@ -44,11 +45,7 @@ class MyApp extends StatelessWidget {
       child: MaterialApp(
         theme: ThemeData(
           primaryColor: color.col,
-          textTheme: const TextTheme(
-            displayMedium: TextStyle(
-              color: Color.fromRGBO(17, 20, 76, 1),
-            )
-          )
+          textTheme: GoogleFonts.poppinsTextTheme(),
         ),
         debugShowCheckedModeBanner: false,
         home: HomePage(),
@@ -114,7 +111,9 @@ class _bottomAppBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+      height: 90,
       decoration: const BoxDecoration(
+
         boxShadow: [
           BoxShadow(
             color: Colors.black26,
@@ -135,40 +134,62 @@ class _bottomAppBar extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
               ZoomTapAnimation(
-                child: IconButton(
-                  onPressed: () => onButtonPressed(0), // Navigate to page 0
-                  icon: const Icon(BootstrapIcons.house_door, size: 25),
-                  color: currentIndex == 0
-                      ? Theme.of(context).primaryColor
-                      : Colors.grey,
+                child: Column(
+                  children: [
+                    IconButton(
+                      onPressed: () => onButtonPressed(0), // Navigate to page 0
+                      icon: const Icon(BootstrapIcons.house_door, size: 25),
+                      color: currentIndex == 0
+                          ? Theme.of(context).primaryColor
+                          : Colors.grey,
+                    ),
+                    Text('Home'),
+                  ],
                 ),
+
               ),
 
               ZoomTapAnimation(
-                child: IconButton(
-                  onPressed: () => onButtonPressed(3), // Navigate to page 0
-                  icon: const Icon(Icons.view_agenda_outlined, size: 25),
-                  color: currentIndex == 3
-                      ? Theme.of(context).primaryColor
-                      : Colors.grey,
+                child: Column(
+                  children: [
+                    IconButton(
+                      onPressed: () => onButtonPressed(3), // Navigate to page 0
+                      icon: const Icon(Icons.filter_none, size: 25),
+                      color: currentIndex == 3
+                          ? Theme.of(context).primaryColor
+                          : Colors.grey,
+                    ),
+                    Text('Decks'),
+                  ],
+                ),
+
+              ),
+              ZoomTapAnimation(
+                child: Column(
+                  children: [
+                    IconButton(
+                      onPressed: () => onButtonPressed(2), // Navigate to page 0
+                      icon: const Icon(Icons.add, size: 25),
+                      color: currentIndex == 2
+                          ? Theme.of(context).primaryColor
+                          : Colors.grey,
+                    ),
+                    Text('Add')
+                  ],
                 ),
               ),
               ZoomTapAnimation(
-                child: IconButton(
-                  onPressed: () => onButtonPressed(2), // Navigate to page 0
-                  icon: const Icon(Icons.add, size: 25),
-                  color: currentIndex == 2
-                      ? Theme.of(context).primaryColor
-                      : Colors.grey,
-                ),
-              ),
-              ZoomTapAnimation(
-                child: IconButton(
-                  onPressed: () => onButtonPressed(1), // Navigate to page 1
-                  icon: const Icon(BootstrapIcons.person, size: 25),
-                  color: currentIndex == 1
-                      ? Theme.of(context).primaryColor
-                      : Colors.grey,
+                child: Column(
+                  children: [
+                    IconButton(
+                      onPressed: () => onButtonPressed(1), // Navigate to page 1
+                      icon: const Icon(Icons.account_circle_outlined, size: 25),
+                      color: currentIndex == 1
+                          ? Theme.of(context).primaryColor
+                          : Colors.grey,
+                    ),
+                    Text('Profile')
+                  ],
                 ),
               ),
 
@@ -176,7 +197,7 @@ class _bottomAppBar extends StatelessWidget {
                 child: IconButton(
                   onPressed: (){}, // Navigate to page 1
                   icon: const Icon(Icons.settings, size: 25),
-                  color: currentIndex == 1
+                  color: currentIndex == 4
                       ? Theme.of(context).primaryColor
                       : Colors.grey,
                 ),

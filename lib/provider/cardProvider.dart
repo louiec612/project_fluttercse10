@@ -16,12 +16,18 @@ class CardClass extends ChangeNotifier{
 
 
   List<Cards> allCards =[];
+  int count = 0;
 
   getCards() async{
     allCards = await DbHelper.dbHelper.getAllCards();
+    count = allCards.length;
     notifyListeners();
   }
 
+  countCards() async{
+
+    notifyListeners();
+  }
   insertNewCard(){
     Cards cards = Cards(
       question: questionController.text,

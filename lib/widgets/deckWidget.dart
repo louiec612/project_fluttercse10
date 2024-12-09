@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../db_service/sqf.dart';
 import '../provider/cardProvider.dart'; // Your provider file
 
+
 class TableListWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -14,6 +15,7 @@ class TableListWidget extends StatelessWidget {
         if (tableNameProvider.tableNames.isEmpty) {
           tableNameProvider.fetchTableNames();
         }
+
         return tableNameProvider.tableNames.isEmpty
             ? const Text('No tables found')
             : Expanded(
@@ -22,6 +24,7 @@ class TableListWidget extends StatelessWidget {
                   itemCount: tableNameProvider.tableNames.length,
                   itemBuilder: (context, index) {
                     final tableName = tableNameProvider.tableNames[index];
+
                     return Container(
                       height: 100,
                       decoration: BoxDecoration(
@@ -47,25 +50,14 @@ class TableListWidget extends StatelessWidget {
                           future: DbHelper.dbHelper
                               .countRows(tableName), // The future to resolve
                           builder: (context, snapshot) {
-                            if (snapshot.connectionState ==
-                                ConnectionState.waiting) {
-                              return const Text(
-                                  'Loading...'); // Show a loading indicator while waiting
-                            } else if (snapshot.hasError) {
-                              return const Text(
-                                  'Error'); // Show error message if there's an error
-                            } else if (snapshot.hasData) {
                               return Text(
                                   'Cards: ${snapshot.data}'); // Display the resolved data
-                            } else {
-                              return const Text('0'); // Default fallback
-                            }
                           },
                         ),
                         trailing: const Icon(Icons.table_chart),
-                        onTap: () {
+                        onTap: () async{
                           DbHelper.dbHelper.tableName = tableName;
-
+                          await cards.getCards();
                           if (cards.allCards.isNotEmpty) {
                             Navigator.push(
                                 context,
