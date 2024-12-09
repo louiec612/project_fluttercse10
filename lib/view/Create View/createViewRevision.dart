@@ -7,10 +7,12 @@ import 'package:project_fluttercse10/test.dart';
 import 'package:project_fluttercse10/widgets/cardsWidget.dart';
 import 'package:provider/provider.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:syncfusion_flutter_pdf/pdf.dart';
 import 'package:xml/xml.dart';
 import 'dart:io';
 import 'package:project_fluttercse10/main.dart';
 
+import '../../db_service/sqf.dart';
 import '../../getset.dart';
 import '../../provider/animationProvider.dart';
 import '../../provider/cardProvider.dart';
@@ -43,7 +45,7 @@ class _addFlashCardViewState extends State<addFlashCardView> {
             child: Column(
               children: [
                 const SizedBox(height:10),
-                const dropdownDeck(),
+                dropdownDeck(),
                 const SizedBox(height:10),
                 createBar(
                   provider: provider,
@@ -85,6 +87,7 @@ class _addFlashCardViewState extends State<addFlashCardView> {
   }
 }
 
+
 class dropdownDeck extends StatelessWidget {
   const dropdownDeck({
     super.key,
@@ -92,27 +95,45 @@ class dropdownDeck extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    List<String> items = [
-      'Deck1',
-    ];
+
+    // List<String> items will be populated with table names from the provider
     return Consumer<deckProvider>(
-      builder: (BuildContext context, deck, Widget? child) => DropdownMenu(
-        initialSelection: items[0],
-        label: const Text('Select Deck'),
-        dropdownMenuEntries:
-            items.map<DropdownMenuEntry<String>>((String menu) {
-          return DropdownMenuEntry<String>(
-            value: menu,
-            label: menu,
-          );
-        }).toList(),
-        onSelected: (newValue) {
-          // Update the selected value in the provider
-          if (newValue != null) {
-            deck.updateSelectedValue(newValue);
-          }
-        },
-      ),
+      builder: (BuildContext context, deck, Widget? child) {
+        // Fetch the table names if not already fetched
+        if (deck.tableNames.isEmpty) {
+          deck.fetchTableNames();
+        }
+
+        // Use the table names from the provider
+        List<String> items = deck.tableNames.isNotEmpty
+            ? deck.tableNames
+            : ['Loading...']; // Show a loading state if no table names are available
+
+        return Consumer<CardClass>(
+          builder: (BuildContext context, card, Widget? child) {
+
+            return DropdownMenu(
+              initialSelection: items.isNotEmpty ? items[0] : null,
+              label: const Text('Select Deck'),
+              dropdownMenuEntries: items.map<DropdownMenuEntry<String>>(
+                    (String menu) {
+                  return DropdownMenuEntry<String>(
+                    value: menu,
+                    label: menu,
+                  );
+                },
+              ).toList(),
+              onSelected: (newValue) {
+                if (newValue != null) {
+                  DbHelper.dbHelper.tableName = newValue;
+                  card.getCards();
+                  deck.updateSelectedValue(newValue);
+                }
+              },
+            );
+          },
+        );
+      },
     );
   }
 }
@@ -254,6 +275,44 @@ class importButton extends StatefulWidget {
 }
 bool isHoveredImport = false;
 class _importButtonState extends State<importButton> {
+  String text='';
+  Future<void> pickAndExtractPdf() async {
+    try {
+      // Use FilePicker to pick a PDF file
+      final result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['pdf'],
+      );
+
+      if (result != null && result.files.single.path != null) {
+        final filePath = result.files.single.path!;
+        final fileBytes = File(filePath).readAsBytesSync();
+
+        // Load the PDF document
+        final PdfDocument document = PdfDocument(inputBytes: fileBytes);
+
+        // Extract text from all pages
+        text = PdfTextExtractor(document).extractText();
+
+
+        // Dispose the document to free resources
+        document.dispose();
+
+        // Update the UI with the extracted text
+        setState(() {
+          text = text.isNotEmpty ? text : "No text found in the document.";
+        });
+      } else {
+        setState(() {
+          text = "No file selected.";
+        });
+      }
+    } catch (e) {
+      setState(() {
+        text = "Error occurred: ${e.toString()}";
+      });
+    }
+  }
   @override
   Widget build(BuildContext context) {
 
@@ -271,7 +330,10 @@ class _importButtonState extends State<importButton> {
       child: SizedBox(
         height: 50,
         child: ElevatedButton(
-          onPressed: () async {},
+          onPressed: () async {
+            pickAndExtractPdf();
+            print(text);
+          },
           style: ElevatedButton.styleFrom(
             backgroundColor: isHoveredImport ? Colors.grey[700] : Colors.grey[600],
             shape: RoundedRectangleBorder(

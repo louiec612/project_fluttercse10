@@ -12,10 +12,7 @@ import 'db_service/sqf.dart';
 import 'generator.dart';
 import 'view/Home View/homeView.dart';
 import 'view/Profile View/profileView.dart';
-import 'view/Create View/createView.dart';
-import 'view/Quiz View/quizView.dart';
 import 'package:project_fluttercse10/getset.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:sqflite_common_ffi_web/sqflite_ffi_web.dart';
 
 
@@ -25,15 +22,8 @@ void main() async{
   WidgetsFlutterBinding.ensureInitialized();
   databaseFactory = databaseFactoryFfiWeb;
   await DbHelper.dbHelper.initDatabase();
-  runApp(const MyApp());
 
-  final generator = QuestionAnswerGenerator(apiKey);
-  try {
-    generateCard.data = await generator.generate('Automata');
-    print(generateCard.data);
-  } catch (e) {
-    print('Error: $e');
-  }
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {

@@ -4,6 +4,7 @@ import 'package:project_fluttercse10/main.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:provider/provider.dart';
 import '../../getset.dart';
+import '../../model/cardModel.dart';
 import '../../provider/cardProvider.dart';
 import '../Home View/homeView.dart';
 
@@ -15,86 +16,81 @@ class quizView extends StatefulWidget {
 }
 
 class _quizViewState extends State<quizView> {
-
-
   int _current = 0;
   CarouselSliderController buttonCarouselController =
       CarouselSliderController();
   String cardName = "Flashcard Name";
   @override
   Widget build(BuildContext context) {
-    return Consumer<CardClass>(builder: (BuildContext context,provider,Widget? child)=>Scaffold(
-      body: Center(
-        child: Column(
-          children: [
-            const SizedBox(height: 100),
-            Row(children: [
-              SizedBox(width: getWid.wSize*2/10),
-              IconButton(
-                iconSize: 30,
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-                icon: const Icon(Icons.arrow_back_ios),
-              ),
-              const SizedBox(width: 10),
-              Text(
-                cardName,
-                style:
-                    const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              )
-            ]),
-            const SizedBox(height: 90),
-            CarouselSlider(
-                carouselController: buttonCarouselController,
-                options: CarouselOptions(
-                  height: getHgt.hSize / 1.54,
-                  aspectRatio: 2.0,
-                  enlargeCenterPage: true,
-                  enableInfiniteScroll: false,
-                  onPageChanged: (index, reason) {
-                    setState(() {
-                      _current = index; // Update the current index
-                    });
+    return Consumer<CardClass>(
+      builder: (BuildContext context, provider, Widget? child) => Scaffold(
+        body: Center(
+          child: Column(
+            children: [
+              const SizedBox(height: 100),
+              Row(children: [
+                SizedBox(width: getWid.wSize * 2 / 10),
+                IconButton(
+                  iconSize: 30,
+                  onPressed: () {
+                    Navigator.pop(context);
                   },
+                  icon: const Icon(Icons.arrow_back_ios),
                 ),
-                items: myWidgets),
-            Column(
-              children: [
-                Text('${_current + 1}/${myWidgets.length}'),
-                const SizedBox(height: 10),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 50.0),
-                  child: LinearProgressIndicator(
-                    value: (_current + 1) / myWidgets.length,
-                    minHeight: 10,
-                    backgroundColor: Colors.grey[300],
-                    color: Colors.blue,
+                const SizedBox(width: 10),
+                Text(
+                  cardName,
+                  style: const TextStyle(
+                      fontSize: 20, fontWeight: FontWeight.bold),
+                )
+              ]),
+              const SizedBox(height: 90),
+              CarouselSlider.builder(
+                  itemCount: provider.allCards.length,
+                  itemBuilder: (context,index,realIndex){
+                    final card = provider.allCards[index];
+                    return VisibilityCard(card: card);
+                  },
+                  options: CarouselOptions(
+                    height: getHgt.hSize / 1.54,
+                    aspectRatio: 2.0,
+                    enlargeCenterPage: true,
+                    enableInfiniteScroll: false,
+                    onPageChanged: (index, reason) {
+                      setState(() {
+                        _current = index; // Update the current index
+                      });
+                    },
                   ),
-                ),
-              ],
-            ),
-          ],
+              ),
+              Column(
+                children: [
+                  Text('${_current + 1}/${provider.allCards.length}'),
+                  const SizedBox(height: 10),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 50.0),
+                    child: LinearProgressIndicator(
+                      value: (_current + 1) / provider.allCards.length,
+                      minHeight: 10,
+                      backgroundColor: Colors.grey[300],
+                      color: Colors.blue,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
-    ),);
+    );
   }
 }
 
-final Map<String, String> questionsAndAnswers = generateCard.data;
-final List<Widget> myWidgets = questionsAndAnswers.entries.map((entry) {
-  return VisibilityCard(
-    question: entry.key,
-    answer: entry.value,
-  );
-}).toList();
-
 class VisibilityCard extends StatefulWidget {
-  final String question;
-  final String answer;
+  final Cards card;
 
 
-  const VisibilityCard({Key? key, required this.question, required this.answer})
+  const VisibilityCard({Key? key, required this.card})
       : super(key: key);
 
   @override
@@ -119,15 +115,17 @@ class _VisibilityCardState extends State<VisibilityCard> {
             ClipRRect(
               borderRadius: BorderRadius.circular(50),
               child: AnimatedContainer(
-                duration: const Duration(milliseconds: 500), // Animation duration
+                duration:
+                    const Duration(milliseconds: 500), // Animation duration
                 curve: Curves.easeInOut,
-                height: _isSmall? getHgt.hSize / 3.4:(getHgt.hSize / 3.4)+50,
+                height:
+                    _isSmall ? getHgt.hSize / 3.4 : (getHgt.hSize / 3.4) + 50,
                 decoration: BoxDecoration(
                   color: color.col,
                 ),
                 child: Center(
                     child: Text(
-                  widget.question,
+                  widget.card.question,
                   style: const TextStyle(
                     color: Colors.white,
                   ),
@@ -135,15 +133,19 @@ class _VisibilityCardState extends State<VisibilityCard> {
               ),
             ),
             const SizedBox(height: 30),
-            if(visible)
-              _answerContainer(widget: widget).animate().fadeIn(duration: 700.ms,curve: Curves.easeIn).slideY(delay: 100.ms,duration: 500.ms,curve: Curves.easeInOut),
+            if (visible)
+              _answerContainer(widget: widget)
+                  .animate()
+                  .fadeIn(duration: 700.ms, curve: Curves.easeIn)
+                  .slideY(
+                      delay: 100.ms, duration: 500.ms, curve: Curves.easeInOut),
           ],
         ),
         AnimatedPositioned(
           duration: const Duration(milliseconds: 500),
-          width: (getWid.wSize-100),
+          width: (getWid.wSize - 100),
           curve: Curves.easeInOut,
-          bottom: _isSmall ? (getHgt.hSize / 3.6)+50 :(getHgt.hSize / 3.6),
+          bottom: _isSmall ? (getHgt.hSize / 3.6) + 50 : (getHgt.hSize / 3.6),
           child: Align(
             alignment: Alignment.bottomCenter,
             child: Container(
@@ -167,13 +169,15 @@ class _VisibilityCardState extends State<VisibilityCard> {
                     visible = !visible; // Toggle visibility
                   });
                 },
-                icon: _isSmall ? const Icon(
-                  Icons.keyboard_arrow_up,
-                  size: 35,
-                ):const Icon(
-                  Icons.keyboard_arrow_down,
-                  size: 35,
-                ),
+                icon: _isSmall
+                    ? const Icon(
+                        Icons.keyboard_arrow_up,
+                        size: 35,
+                      )
+                    : const Icon(
+                        Icons.keyboard_arrow_down,
+                        size: 35,
+                      ),
               ),
             ),
           ),
@@ -199,7 +203,7 @@ class _answerContainer extends StatelessWidget {
       decoration: BoxDecoration(
           color: color.col, borderRadius: BorderRadius.circular(20)),
       child: Center(
-        child: Text(widget.answer,
+        child: Text(widget.card.answer,
             style: const TextStyle(
               color: Colors.white,
             )),
