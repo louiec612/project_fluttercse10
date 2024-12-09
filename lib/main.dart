@@ -1,14 +1,26 @@
 import 'package:bootstrap_icons/bootstrap_icons.dart';
 import 'package:flutter/material.dart';
+import 'package:project_fluttercse10/provider/animationProvider.dart';
+import 'package:project_fluttercse10/provider/cardProvider.dart';
+import 'package:project_fluttercse10/provider/deckProvider.dart';
+import 'package:project_fluttercse10/splash_screen.dart';
+import 'package:project_fluttercse10/view/Create%20View/createViewRevision.dart';
+import 'package:project_fluttercse10/view/Deck%20View/deckView.dart';
+import 'package:provider/provider.dart';
+import 'package:sqflite/sqflite.dart';
 import 'package:zoom_tap_animation/zoom_tap_animation.dart';
-import 'view/homeView.dart';
-import 'view/profileView.dart';
-import 'view/createView.dart';
-import 'view/quizView.dart';
+import 'db_service/sqf.dart';
+import 'generator.dart';
+import 'view/Home View/homeView.dart';
+import 'view/Profile View/profileView.dart';
 import 'package:project_fluttercse10/getset.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:sqflite_common_ffi_web/sqflite_ffi_web.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  databaseFactory = databaseFactoryFfiWeb;
+  await DbHelper.dbHelper.initDatabase();
+
   runApp(const MyApp());
 }
 
@@ -19,43 +31,66 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     getWid.wSize = MediaQuery.sizeOf(context).width;
     getHgt.hSize = MediaQuery.sizeOf(context).height;
-    return MaterialApp(
-      theme: ThemeData(
-        primaryColor: const Color.fromRGBO(26, 117, 159,1),
-        textTheme: TextTheme(
-          displayMedium: TextStyle(
-            color: Color.fromRGBO(17, 20, 76, 1),
-          )
-        )
+    color.col = const Color.fromRGBO(26, 117, 159, 1);
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (context) => animation()),
+        ChangeNotifierProvider(create: (context) => deckProvider()),
+        ChangeNotifierProvider<CardClass>(create: (context) => CardClass())
+      ],
+      child: MaterialApp(
+        theme: ThemeData(
+          primaryColor: color.col,
+          textTheme: const TextTheme(
+            displayMedium: TextStyle(
+              color: Color.fromRGBO(17, 20, 76, 1),
+            ),
+          ),
+        ),
+        debugShowCheckedModeBanner: false,
+        home: SplashScreen(),
       ),
-      debugShowCheckedModeBanner: false,
-      home: const HomePage(),
     );
   }
 }
 
+final GlobalKey<HomePageState> homePageKey = GlobalKey<HomePageState>();
+
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  HomePage({Key? key}) : super(key: homePageKey);
 
   @override
-  State<HomePage> createState() => _HomePageState();
+  State<HomePage> createState() => HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class HomePageState extends State<HomePage> {
   Color _fabColor = Colors.grey;
   final PageController _controller = PageController();
   int _currentIndex = 0;
-  void _onPageChanged(int index) {
-    setState(() {
-      _currentIndex = index;
-    });
+  late DateTime _startTime;
+
+  @override
+  void initState() {
+    super.initState();
+    _startTime = DateTime.now();
+    DbHelper.dbHelper.printUsageTimes(); // Print usage times when app starts
   }
 
-  void _onButtonPressed(int index) {
-    _controller.animateToPage(index,duration: Duration(milliseconds: 1) ,curve:Curves.ease);
+  @override
+  void dispose() {
+    DateTime _endTime = DateTime.now();
+    int _duration = _endTime.difference(_startTime).inSeconds;
+    DbHelper.dbHelper.saveUsageTime(_duration).then((_) {
+      DbHelper.dbHelper.printUsageTimes();
+    });
+    super.dispose();
+  }
+
+  void onButtonPressed(int index) {
+    _controller.animateToPage(index, duration: const Duration(milliseconds: 1), curve: Curves.ease);
+    _currentIndex = index;
     setState(() {
-      _fabColor =
-          _currentIndex == 2 ? Theme.of(context).primaryColor : Colors.grey;
+      _fabColor = _currentIndex == 2 ? Theme.of(context).primaryColor : Colors.grey;
     });
   }
 
@@ -66,28 +101,18 @@ class _HomePageState extends State<HomePage> {
       extendBody: true,
       bottomNavigationBar: _bottomAppBar(
         currentIndex: _currentIndex,
-        onButtonPressed: _onButtonPressed,
+        onButtonPressed: onButtonPressed,
       ),
-      floatingActionButton: FloatingActionButton.large(
-        backgroundColor: Colors.white,
-        foregroundColor: _fabColor,
-        onPressed: () {
-          _onButtonPressed(3);
-        },
-        shape: const CircleBorder(),
-        child: const Icon(Icons.add),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       body: PageView(
-          controller: _controller,
-          onPageChanged: _onPageChanged,
-          physics: NeverScrollableScrollPhysics(),
-          children: const [
-            homeView(),
-            profileView(),
-            quizView(),
-          ],
-        ),
+        controller: _controller,
+        physics: const NeverScrollableScrollPhysics(),
+        children: const [
+          homeView(),
+          profileView(),
+          addFlashCardView(),
+          deckView(),
+        ],
+      ),
     );
   }
 }
@@ -136,6 +161,24 @@ class _bottomAppBar extends StatelessWidget {
               ),
               ZoomTapAnimation(
                 child: IconButton(
+                  onPressed: () => onButtonPressed(2), // Navigate to page 2
+                  icon: const Icon(Icons.add, size: 25),
+                  color: currentIndex == 2
+                      ? Theme.of(context).primaryColor
+                      : Colors.grey,
+                ),
+              ),
+              ZoomTapAnimation(
+                child: IconButton(
+                  onPressed: () => onButtonPressed(3), // Navigate to page 3
+                  icon: const Icon(Icons.view_agenda_outlined, size: 25),
+                  color: currentIndex == 3
+                      ? Theme.of(context).primaryColor
+                      : Colors.grey,
+                ),
+              ),
+              ZoomTapAnimation(
+                child: IconButton(
                   onPressed: () => onButtonPressed(1), // Navigate to page 1
                   icon: const Icon(BootstrapIcons.person, size: 25),
                   color: currentIndex == 1
@@ -172,4 +215,3 @@ class getHeightSize {
 
   double get hSize => _size;
 }
-
