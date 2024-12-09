@@ -1,15 +1,19 @@
 import 'package:flutter/material.dart';
 
 import '../model/cardModel.dart';
+import '../provider/cardProvider.dart';
 
 class CardWidget extends StatelessWidget {
 
   final Cards card;
+  final CardClass provider;
 
-  const CardWidget(this.card,{super.key});
+  const CardWidget(this.card,this.provider,{super.key});
+
 
   @override
   Widget build(BuildContext context) {
+
     return InkWell(
         child: Column(
           children: [
@@ -38,8 +42,48 @@ class CardWidget extends StatelessWidget {
                   color: Colors.black,
                 ),),
                 subtitle: Text(card.answer),
-                trailing: Icon(Icons.more_vert),
-                  isThreeLine: true
+                trailing:  PopupMenuButton(
+                  itemBuilder: (BuildContext context) =>
+                  <PopupMenuEntry>[
+                    PopupMenuItem(
+                      child: const Text('Delete'),
+                      onTap: (){
+                        provider.deleteCard(card);
+                      },
+                    ),
+                    PopupMenuItem(
+                      child: const Text('Edit'),
+                      onTap: (){
+                        provider.questionController.text = card.question;
+                        provider.answerController.text = card.answer;
+                        showDialog<String>(
+                        context: context,
+                        builder: (BuildContext context) => AlertDialog(
+                          title: const Text('Confirmation'),
+                          content: const Text('AlertDialog description'),
+                          actions: <Widget>[
+                            TextField(
+                              controller: provider.questionController,
+                            ),
+                            TextField(
+                              controller: provider.answerController,
+                            ),
+                            TextButton(
+                              onPressed: () => Navigator.pop(context, 'Cancel'),
+                              child: const Text('Cancel'),
+                            ),
+                            TextButton(
+                              onPressed: (){provider.updateCard(card);
+                              Navigator.pop(context, 'OK');
+                                },
+                              child: const Text('OK'),
+                            ),
+                          ],
+                        ),
+                      );}
+                    ),
+                  ],
+                ),
               ),
             ),
             SizedBox(height:10),

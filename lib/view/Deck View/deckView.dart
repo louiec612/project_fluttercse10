@@ -1,12 +1,12 @@
 // ignore_for_file: camel_case_types, file_names
 
 import 'package:flutter/material.dart';
-import 'package:project_fluttercse10/view/Quiz%20View/quizView.dart';
+
 import 'package:project_fluttercse10/widgets/deckWidget.dart';
 import 'package:provider/provider.dart';
 
 import '../../getset.dart';
-import '../../provider/cardProvider.dart';
+
 import '../../provider/deckProvider.dart';
 
 //VIEW FOR ADD/CREATE FLASH CARD
@@ -75,10 +75,12 @@ class _createTableState extends State<createTable> {
           controller: provider.tableNameController,
         ),
         ElevatedButton(onPressed:(){
-          List<String> a = provider.tableNameController.text.split(" ");
-          String b = a.join("_");
-          provider.createTable(b);
-          provider.fetchTableNames();
+          if (provider.tableNameController.text.isNotEmpty) {
+            List<String> a = provider.tableNameController.text.split(" ");
+            String b = a.join("_");
+            provider.createTable(b);
+            provider.fetchTableNames();
+          }
           // print('Table Created: ${provider.tableNameController.text}');
         }, child: const Text('Create table'))
       ],

@@ -1,19 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:archive/archive.dart';
-import 'package:project_fluttercse10/generator.dart';
 import 'package:project_fluttercse10/provider/deckProvider.dart';
-import 'package:project_fluttercse10/test.dart';
 import 'package:project_fluttercse10/widgets/cardsWidget.dart';
 import 'package:provider/provider.dart';
-import 'package:sqflite/sqflite.dart';
 import 'package:syncfusion_flutter_pdf/pdf.dart';
-import 'package:xml/xml.dart';
-import 'dart:io';
-import 'package:project_fluttercse10/main.dart';
-
 import '../../db_service/sqf.dart';
-import '../../getset.dart';
 import '../../provider/animationProvider.dart';
 import '../../provider/cardProvider.dart';
 
@@ -27,48 +18,40 @@ class addFlashCardView extends StatefulWidget {
 class _addFlashCardViewState extends State<addFlashCardView> {
   @override
   Widget build(BuildContext context) {
+    final animate1 = Provider.of<animation>(context);
     return Consumer<CardClass>(
       builder: (BuildContext context, provider, Widget? child) => Column(
         children: [
           Container(
-            width: MediaQuery.of(context).size.width,
-            height: MediaQuery.of(context).size.height / 3.5,
-            decoration: BoxDecoration(
-              color: Theme.of(context).primaryColor,
-              borderRadius: const BorderRadius.vertical(
-                bottom: Radius.circular(25),
-              ),
-            ),
-          ),
-          Container(
             color: Colors.white,
             child: Column(
               children: [
-                const SizedBox(height:10),
-                dropdownDeck(),
-                const SizedBox(height:10),
+                const SizedBox(height: 10),
+                const dropdownDeck(),
+                const SizedBox(height: 10),
                 createBar(
                   provider: provider,
                 ),
                 const SizedBox(height: 20),
                 Padding(
                   padding: const EdgeInsets.all(10.0),
-                  child: SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
+                  child: Column(children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        generateButton(provider: provider),
+                        importButton(provider: provider),
                         const SizedBox(width: 5),
-                        const importButton(),
+                        if (animate1.value)
+                          addButton(
+                            provider: provider,
+                          ),
+                        if (!animate1.value) generateButton(provider: provider),
                         const SizedBox(width: 5),
                         const changeType(),
-                        const SizedBox(width: 5),
-                        deleteButton(
-                          provider: provider,
-                        ),
                       ],
                     ),
-                  ),
+                    SizedBox(height: 10),
+                  ]),
                 )
               ],
             ),
@@ -77,7 +60,7 @@ class _addFlashCardViewState extends State<addFlashCardView> {
             child: ListView.builder(
               itemCount: provider.allCards.length,
               itemBuilder: (context, index) {
-                return CardWidget(provider.allCards[index]);
+                return CardWidget(provider.allCards[index], provider);
               },
             ),
           ),
@@ -87,7 +70,6 @@ class _addFlashCardViewState extends State<addFlashCardView> {
   }
 }
 
-
 class dropdownDeck extends StatelessWidget {
   const dropdownDeck({
     super.key,
@@ -95,7 +77,6 @@ class dropdownDeck extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     // List<String> items will be populated with table names from the provider
     return Consumer<deckProvider>(
       builder: (BuildContext context, deck, Widget? child) {
@@ -103,34 +84,62 @@ class dropdownDeck extends StatelessWidget {
         if (deck.tableNames.isEmpty) {
           deck.fetchTableNames();
         }
-
         // Use the table names from the provider
         List<String> items = deck.tableNames.isNotEmpty
             ? deck.tableNames
-            : ['Loading...']; // Show a loading state if no table names are available
+            : [
+                'Loading...'
+              ]; // Show a loading state if no table names are available
 
         return Consumer<CardClass>(
           builder: (BuildContext context, card, Widget? child) {
-
-            return DropdownMenu(
-              initialSelection: items.isNotEmpty ? items[0] : null,
-              label: const Text('Select Deck'),
-              dropdownMenuEntries: items.map<DropdownMenuEntry<String>>(
-                    (String menu) {
-                  return DropdownMenuEntry<String>(
-                    value: menu,
-                    label: menu,
-                  );
-                },
-              ).toList(),
-              onSelected: (newValue) {
-                if (newValue != null) {
-                  DbHelper.dbHelper.tableName = newValue;
-                  card.getCards();
-                  deck.updateSelectedValue(newValue);
-                }
-              },
-            );
+            return Container(
+                decoration: BoxDecoration(
+                  //color: Colors.blue.shade50, // Background color
+                  border: Border.all(color: Colors.transparent), // Border
+                  borderRadius: BorderRadius.circular(8), // Rounded corners
+                ),
+                child: DropdownButton(
+                  value : items.contains(deck.selectedValue) ? deck.selectedValue : null,
+                  items: items.map<DropdownMenuItem<String>>((String menu) {
+                    return DropdownMenuItem<String>(
+                      value: menu,
+                      child: Text(menu), // Display text for the item
+                    );
+                  }).toList(),
+                  hint: const Text('Select Deck'),
+                  onChanged: (String? newValue) {
+                    if (newValue != null) {
+                      DbHelper.dbHelper.tableName = newValue;
+                      card.getCards();
+                      deck.updateSelectedValue(newValue);
+                    }
+                  }
+                  ,
+                )
+                // DropdownMenu(
+                //   menuStyle: MenuStyle(
+                //     side:  WidgetStateProperty.all(BorderSide(color: Colors.blue, width: 2)),
+                //   ),
+                //   initialSelection: deck.selectedValue,
+                //   label: const Text('Select Deck'),
+                //   dropdownMenuEntries: items.map<DropdownMenuEntry<String>>(
+                //     (String menu) {
+                //       return DropdownMenuEntry<String>(
+                //         value: menu,
+                //         label: menu,
+                //       );
+                //     },
+                //   ).toList(),
+                //   onSelected: (newValue) {
+                //     if (newValue != null) {
+                //       DbHelper.dbHelper.tableName = newValue;
+                //       card.getCards();
+                //       deck.updateSelectedValue(newValue);
+                //     }
+                //   },
+                // ),
+                );
           },
         );
       },
@@ -147,14 +156,14 @@ class changeType extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<animation>(
         builder: (BuildContext context, give, Widget? child) => SizedBox(
-          height: 50,
-          width: 200,
-          child: ElevatedButton(
+              height: 50,
+              child: ElevatedButton(
                 onPressed: () {
                   give.reverseValue();
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: _isHoveredGenerate ? Colors.grey[700] : Colors.grey[600],
+                  backgroundColor:
+                      _isHoveredGenerate ? Colors.grey[700] : Colors.grey[600],
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),
@@ -173,6 +182,10 @@ class changeType extends StatelessWidget {
                       value: give.value,
                       onChanged: (bool value) {
                         give.setValue(value);
+                        if (value)
+                          give.setType('Question');
+                        else
+                          give.setType('A Topic');
                       },
                       activeColor: Colors.white,
                       activeTrackColor: Colors.teal,
@@ -181,7 +194,7 @@ class changeType extends StatelessWidget {
                   ],
                 ),
               ),
-        ));
+            ));
   }
 }
 
@@ -192,7 +205,9 @@ class generateButton extends StatefulWidget {
   @override
   State<generateButton> createState() => _generateButtonState();
 }
+
 bool _isHoveredGenerate = false;
+
 class _generateButtonState extends State<generateButton> {
   @override
   Widget build(BuildContext context) {
@@ -218,7 +233,8 @@ class _generateButtonState extends State<generateButton> {
               }
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: _isHoveredGenerate ? Colors.grey[700] : Colors.grey[600],
+              backgroundColor:
+                  _isHoveredGenerate ? Colors.grey[700] : Colors.grey[600],
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8),
               ),
@@ -233,7 +249,6 @@ class _generateButtonState extends State<generateButton> {
               ),
               child: const Text('Generate'),
             ),
-
           ),
         ),
       ),
@@ -241,81 +256,77 @@ class _generateButtonState extends State<generateButton> {
   }
 }
 
-class deleteButton extends StatelessWidget {
+class addButton extends StatelessWidget {
   final CardClass provider;
-  const deleteButton({
+  const addButton({
     super.key,
     required this.provider,
   });
 
   @override
   Widget build(BuildContext context) {
-    return ElevatedButton(
-      onPressed: () async {
-        provider.deleteAllCards();
-      },
-      style: ElevatedButton.styleFrom(
-        backgroundColor: Colors.grey[600],
-      ),
-      child: const Text(
-        'Delete',
-        style: TextStyle(color: Colors.white),
+    return SizedBox(
+      height: 50,
+      child: ElevatedButton(
+        onPressed: () async {
+          provider.insertNewCard();
+        },
+        style: ElevatedButton.styleFrom(
+          backgroundColor:
+              _isHoveredGenerate ? Colors.grey[700] : Colors.grey[600],
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+          ),
+          elevation: 5,
+          shadowColor: Colors.black.withOpacity(0.3),
+        ),
+        child: const Text(
+          'Add Card',
+          style: TextStyle(color: Colors.white),
+        ),
       ),
     );
   }
 }
 
 class importButton extends StatefulWidget {
-  const importButton({
-    super.key,
-  });
+  final CardClass provider;
+  const importButton({super.key, required this.provider});
 
   @override
   State<importButton> createState() => _importButtonState();
 }
+
 bool isHoveredImport = false;
+
 class _importButtonState extends State<importButton> {
-  String text='';
-  Future<void> pickAndExtractPdf() async {
+  String? text;
+  pickAndExtractText(BuildContext context) async {
     try {
-      // Use FilePicker to pick a PDF file
       final result = await FilePicker.platform.pickFiles(
         type: FileType.custom,
         allowedExtensions: ['pdf'],
       );
-
-      if (result != null && result.files.single.path != null) {
-        final filePath = result.files.single.path!;
-        final fileBytes = File(filePath).readAsBytesSync();
-
-        // Load the PDF document
-        final PdfDocument document = PdfDocument(inputBytes: fileBytes);
-
-        // Extract text from all pages
-        text = PdfTextExtractor(document).extractText();
-
-
-        // Dispose the document to free resources
-        document.dispose();
-
-        // Update the UI with the extracted text
-        setState(() {
-          text = text.isNotEmpty ? text : "No text found in the document.";
-        });
+      if (result != null && result.files.isNotEmpty) {
+        final fileBytes = result.files.first.bytes;
+        if (fileBytes != null) {
+          PdfDocument document = PdfDocument(inputBytes: fileBytes);
+          String text = PdfTextExtractor(document).extractText();
+          widget.provider.importAndInsertQuestions(text);
+          document.dispose();
+        } else {
+          print("No file content loaded.");
+        }
       } else {
-        setState(() {
-          text = "No file selected.";
-        });
+        print("File picking canceled.");
       }
     } catch (e) {
-      setState(() {
-        text = "Error occurred: ${e.toString()}";
-      });
+      print("Error picking file: $e");
     }
   }
+
   @override
   Widget build(BuildContext context) {
-
     return MouseRegion(
       onEnter: (_) {
         setState(() {
@@ -330,12 +341,12 @@ class _importButtonState extends State<importButton> {
       child: SizedBox(
         height: 50,
         child: ElevatedButton(
-          onPressed: () async {
-            pickAndExtractPdf();
-            print(text);
+          onPressed: () {
+            pickAndExtractText(context);
           },
           style: ElevatedButton.styleFrom(
-            backgroundColor: isHoveredImport ? Colors.grey[700] : Colors.grey[600],
+            backgroundColor:
+                isHoveredImport ? Colors.grey[700] : Colors.grey[600],
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(8),
             ),
@@ -350,7 +361,6 @@ class _importButtonState extends State<importButton> {
             ),
             child: const Text('Import'),
           ),
-
         ),
       ),
     );
@@ -367,11 +377,10 @@ class createBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    String stateQ = 'A Topic';
     double containerHeight = 50;
     return Consumer<animation>(
       builder: (BuildContext context, give, Widget? child) => AnimatedContainer(
-        width:350,
+        width: 350,
         duration: const Duration(milliseconds: 500), // Animation duration
         curve: Curves.easeInOut,
 
@@ -386,9 +395,11 @@ class createBar extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.fromLTRB(10.0, 10, 0, 0),
               child: TextField(
-                controller: provider.promptController,
+                controller: give.value
+                    ? provider.questionController
+                    : provider.promptController,
                 decoration: InputDecoration.collapsed(
-                  hintText: 'Enter $stateQ',
+                  hintText: give.value ? 'Enter Question' : 'Enter A Topic',
                 ),
               ),
             ),
@@ -397,19 +408,20 @@ class createBar extends StatelessWidget {
               curve: Curves.easeIn,
               child: Container(
                 child: give.value
-                    ? const Column(
-                  children: [
-                    Divider(),
-                    Padding(
-                      padding: EdgeInsets.fromLTRB(10.0, 0, 0, 0),
-                      child: TextField(
-                        decoration: InputDecoration.collapsed(
-                          hintText: 'Enter Answer',
-                        ),
-                      ),
-                    ),
-                  ],
-                )
+                    ? Column(
+                        children: [
+                          const Divider(),
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(10.0, 0, 0, 0),
+                            child: TextField(
+                              controller: provider.answerController,
+                              decoration: const InputDecoration.collapsed(
+                                hintText: 'Enter Answer',
+                              ),
+                            ),
+                          ),
+                        ],
+                      )
                     : const SizedBox.shrink(),
               ),
             ),

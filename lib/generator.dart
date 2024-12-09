@@ -1,6 +1,3 @@
-import 'package:flutter/material.dart';
-import 'package:sqflite/sqflite.dart';
-import 'getset.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
 
 const apiKey = 'AIzaSyBiTikvtoGbTnJdthLj_BEcXKdhPAxoKW0';
@@ -12,14 +9,14 @@ class QuestionAnswerGenerator {
   QuestionAnswerGenerator(this.apiKey);
 
   /// Asynchronous function to generate the map
-  Future<Map<String, String>> generate(String prompt) async {
+  Future<Map<String, String>> generate(String prompt,int num) async {
     final model = GenerativeModel(
       model: 'gemini-1.5-flash-latest',
       apiKey: apiKey,
     );
 
     var fullPrompt =
-        'I want you to create a dart map like this, "Question": "Answer", Any topic, and exactly $numberOfQuestions questions with different question types. Remove ```dart at the beginning and end specifically, make the questions about $prompt, shorten the question into 1 sentence and 1-3 words for answers';
+        'I want you to create a dart map like this, "Question": "Answer", Any topic, and exactly $num questions with different question types. Remove ```dart at the beginning and end specifically, make the questions about $prompt, shorten the question into 1 sentence and you decide if the answer should be 1-3 words or the answer should be long, but short answer as much as possible';
 
     final content = [Content.text(fullPrompt)];
     final response = await model.generateContent(content);

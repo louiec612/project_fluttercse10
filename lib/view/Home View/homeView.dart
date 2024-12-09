@@ -114,61 +114,56 @@ class _homeViewState extends State<homeView> {
                   ),
                 ],
               ),
-              GridView.builder(
-                shrinkWrap: true,
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 3,
-                  crossAxisSpacing: 4.0,
-                  mainAxisSpacing: 4.0,
-                ),
-                itemCount: 6,
-                itemBuilder: (context, index) {
-                  return  Padding(
-                      padding: const EdgeInsets.all(3.0),
-                      child: Container(
-                        decoration: BoxDecoration(
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.grey.withOpacity(0.4),
-                              blurRadius: 35,
-                              spreadRadius: .2,
-                              offset: const Offset(0, 0),
+              Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: GridView.builder(
+                  shrinkWrap: true,
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 3,
+                    crossAxisSpacing: 10.0,
+                    mainAxisSpacing: 10.0,
+                  ),
+                  itemCount: 6,
+                  itemBuilder: (context, index) {
+                    return  Padding(
+                        padding: const EdgeInsets.all(3.0),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              border: Border.all(color: Color.fromARGB(228,227,233,255),width: 2),
+                              borderRadius: BorderRadius.circular(15),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.grey.withOpacity(0.2), // Shadow color
+                                  spreadRadius: 1, // Spread radius
+                                  blurRadius: 5, // Blur radius
+                                  offset: Offset(0, 1),
+                                )
+                              ]
                             ),
-                          ],
-                        ),
-                        constraints: const BoxConstraints(
-                          minHeight: 90,
-                          minWidth: 90,
-                          maxHeight: 110,
-                          maxWidth: 110,
-
-                        ),
-                        child: Card(
-                          color: Colors.white,
-                          elevation: 8.0,
-
-                          child: InkWell(
-                            onTap: () {
-                              print('Flashcard ${index + 1} clicked');
-                            },
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsets.all(16.0),
-                                  child: Text(
-                                    'Flashcard ${index + 1}',
-                                    style: const TextStyle(fontSize: 16),
+                            child: InkWell(
+                              onTap: () {
+                                print('Flashcard ${index + 1} clicked');
+                              },
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.all(16.0),
+                                    child: Text(
+                                      'Flashcard ${index + 1}',
+                                      style: const TextStyle(fontSize: 16),
+                                    ),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
+
                           ),
 
-                        ),
-                      ),
-                  );
-                },
+                    );
+                  },
+                ),
               ),
               const SizedBox(height: 50,)
             ],

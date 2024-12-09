@@ -12,6 +12,8 @@ class CardClass extends ChangeNotifier{
   TextEditingController answerController = TextEditingController();
   TextEditingController promptController = TextEditingController();
 
+  String prompt1 = '';
+
 
   List<Cards> allCards =[];
 
@@ -30,7 +32,10 @@ class CardClass extends ChangeNotifier{
   }
 
   updateCard(Cards card) async{
+    card.question = questionController.text;
+    card.answer = answerController.text;
     await DbHelper.dbHelper.updateCard(card);
+    print(card.answer);
     getCards();
   }
 
@@ -49,14 +54,34 @@ class CardClass extends ChangeNotifier{
     notifyListeners();
 
     try {
-      String prompt = promptController.text;
+      String prompt = promptController.text.isEmpty ? prompt1 : promptController.text;
       if (prompt.isEmpty) {
         throw Exception("Prompt cannot be empty");
       }
 
       final generator = QuestionAnswerGenerator(apiKey);
-      final questionAnswerMap = await generator.generate(prompt);
+      final questionAnswerMap = await generator.generate(prompt,10);
 
+      await insertCardsFromMap(questionAnswerMap);
+    } catch (e) {
+      print("Error: $e");
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> importAndInsertQuestions(String a) async {
+    isLoading = true;
+    notifyListeners();
+
+    try {
+      String prompt = a;
+      if (prompt.isEmpty) {
+        throw Exception("Prompt cannot be empty");
+      }
+      final generator = QuestionAnswerGenerator(apiKey);
+      final questionAnswerMap = await generator.generate(prompt,10);
       await insertCardsFromMap(questionAnswerMap);
     } catch (e) {
       print("Error: $e");

@@ -9,10 +9,10 @@ import 'package:provider/provider.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:zoom_tap_animation/zoom_tap_animation.dart';
 import 'db_service/sqf.dart';
-import 'generator.dart';
 import 'view/Home View/homeView.dart';
 import 'view/Profile View/profileView.dart';
 import 'package:project_fluttercse10/getset.dart';
+
 import 'package:sqflite_common_ffi_web/sqflite_ffi_web.dart';
 
 
@@ -69,8 +69,6 @@ class HomePageState extends State<HomePage> {
   Color _fabColor = Colors.grey;
   final PageController _controller = PageController();
   int _currentIndex = 0;
-
-
   void onButtonPressed(int index) {
     _controller.animateToPage(index,duration: const Duration(milliseconds: 1) ,curve:Curves.ease);
     _currentIndex = index;
@@ -83,7 +81,7 @@ class HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Color.fromARGB(255,250,250,250),
       extendBody: true,
       bottomNavigationBar: _bottomAppBar(
         currentIndex: _currentIndex,
@@ -145,15 +143,7 @@ class _bottomAppBar extends StatelessWidget {
                       : Colors.grey,
                 ),
               ),
-              ZoomTapAnimation(
-                child: IconButton(
-                  onPressed: () => onButtonPressed(2), // Navigate to page 0
-                  icon: const Icon(Icons.add, size: 25),
-                  color: currentIndex == 2
-                      ? Theme.of(context).primaryColor
-                      : Colors.grey,
-                ),
-              ),
+
               ZoomTapAnimation(
                 child: IconButton(
                   onPressed: () => onButtonPressed(3), // Navigate to page 0
@@ -165,8 +155,27 @@ class _bottomAppBar extends StatelessWidget {
               ),
               ZoomTapAnimation(
                 child: IconButton(
+                  onPressed: () => onButtonPressed(2), // Navigate to page 0
+                  icon: const Icon(Icons.add, size: 25),
+                  color: currentIndex == 2
+                      ? Theme.of(context).primaryColor
+                      : Colors.grey,
+                ),
+              ),
+              ZoomTapAnimation(
+                child: IconButton(
                   onPressed: () => onButtonPressed(1), // Navigate to page 1
                   icon: const Icon(BootstrapIcons.person, size: 25),
+                  color: currentIndex == 1
+                      ? Theme.of(context).primaryColor
+                      : Colors.grey,
+                ),
+              ),
+
+              ZoomTapAnimation(
+                child: IconButton(
+                  onPressed: (){}, // Navigate to page 1
+                  icon: const Icon(Icons.settings, size: 25),
                   color: currentIndex == 1
                       ? Theme.of(context).primaryColor
                       : Colors.grey,

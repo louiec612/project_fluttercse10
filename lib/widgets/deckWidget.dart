@@ -3,7 +3,7 @@ import 'package:project_fluttercse10/provider/deckProvider.dart';
 import 'package:project_fluttercse10/view/Quiz%20View/quizView.dart';
 import 'package:provider/provider.dart';
 import '../db_service/sqf.dart';
-import '../provider/cardProvider.dart';// Your provider file
+import '../provider/cardProvider.dart'; // Your provider file
 
 class TableListWidget extends StatelessWidget {
   @override
@@ -17,29 +17,67 @@ class TableListWidget extends StatelessWidget {
         return tableNameProvider.tableNames.isEmpty
             ? const Text('No tables found')
             : Expanded(
-          child: Consumer<CardClass>(
-            builder: (context, cards, child) => ListView.builder(
-            itemCount: tableNameProvider.tableNames.length,
-            itemBuilder: (context, index) {
-              final tableName = tableNameProvider.tableNames[index];
-              return Card(
-                margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
-                child: ListTile(
-                  title: Text(tableName),
-                  trailing: const Icon(Icons.table_chart),
-                  onTap: (){
-                    DbHelper.dbHelper.tableName = tableName;
-                    cards.getCards();
-                    if(cards.allCards.isNotEmpty){
-                      Navigator.push(context, MaterialPageRoute(builder: (context) => const quizView()));
-                    }
+                child: Consumer<CardClass>(
+                builder: (context, cards, child) => ListView.builder(
+                  itemCount: tableNameProvider.tableNames.length,
+                  itemBuilder: (context, index) {
+                    final tableName = tableNameProvider.tableNames[index];
+                    return Container(
+                      height: 100,
+                      decoration: BoxDecoration(
+                          color: Colors.white,
+                          border: Border.all(
+                              color: const Color.fromARGB(228, 227, 233, 255),
+                              width: 2),
+                          borderRadius: BorderRadius.circular(15),
+                          boxShadow: [
+                            BoxShadow(
+                              color:
+                                  Colors.grey.withOpacity(0.2), // Shadow color
+                              spreadRadius: 1, // Spread radius
+                              blurRadius: 5, // Blur radius
+                              offset: const Offset(0, 1),
+                            )
+                          ]),
+                      margin: const EdgeInsets.symmetric(
+                          vertical: 10, horizontal: 15),
+                      child: ListTile(
+                        title: Text(tableName),
+                        subtitle: FutureBuilder<int>(
+                          future: DbHelper.dbHelper
+                              .countRows(tableName), // The future to resolve
+                          builder: (context, snapshot) {
+                            if (snapshot.connectionState ==
+                                ConnectionState.waiting) {
+                              return const Text(
+                                  'Loading...'); // Show a loading indicator while waiting
+                            } else if (snapshot.hasError) {
+                              return const Text(
+                                  'Error'); // Show error message if there's an error
+                            } else if (snapshot.hasData) {
+                              return Text(
+                                  'Cards: ${snapshot.data}'); // Display the resolved data
+                            } else {
+                              return const Text('0'); // Default fallback
+                            }
+                          },
+                        ),
+                        trailing: const Icon(Icons.table_chart),
+                        onTap: () {
+                          DbHelper.dbHelper.tableName = tableName;
 
+                          if (cards.allCards.isNotEmpty) {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => const quizView()));
+                          }
+                        },
+                      ),
+                    );
                   },
                 ),
-              );
-            },
-          ),
-        ));
+              ));
       },
     );
   }

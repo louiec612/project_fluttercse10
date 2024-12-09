@@ -48,6 +48,7 @@ dependencies:
   sqflite_common_ffi_web: ^0.4.5+4
   provider: ^6.1.2
   syncfusion_flutter_pdf: ^27.2.5
+  pdf_text: ^0.5.0
 
 dependency_overrides:
   http: ^0.13.0

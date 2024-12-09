@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
-
 import '../db_service/sqf.dart';
 
+
 class deckProvider with ChangeNotifier {
-  String _selectedValue = 'Option 1'; // Default selected value
+  String _selectedValue = 'no_table'; // Default selected value
   String get selectedValue => _selectedValue;
   List<String> _tableNames = [];
   List<String> get tableNames => _tableNames;
+
 
   TextEditingController tableNameController = TextEditingController();
 
@@ -32,5 +33,13 @@ class deckProvider with ChangeNotifier {
     await fetchTableNames();
     notifyListeners();
   }
+
+  Future<int> getCount(String table) async {
+    var a = await DbHelper.dbHelper.countRows(table);
+    notifyListeners();
+    return a;
+  }
+
+
 
 }
