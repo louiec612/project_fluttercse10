@@ -1,12 +1,6 @@
 import 'package:bootstrap_icons/bootstrap_icons.dart';
 import 'package:flutter/material.dart';
-import 'package:project_fluttercse10/provider/animationProvider.dart';
-import 'package:project_fluttercse10/provider/cardProvider.dart';
-import 'package:project_fluttercse10/provider/deckProvider.dart';
-import 'package:project_fluttercse10/view/Create%20View/createViewRevision.dart';
-import 'package:project_fluttercse10/view/Deck%20View/deckView.dart';
-import 'package:provider/provider.dart';
-import 'package:sqflite/sqflite.dart';
+import 'package:project_fluttercse10/view/deckView.dart';
 import 'package:zoom_tap_animation/zoom_tap_animation.dart';
 import 'db_service/sqf.dart';
 import 'view/Home View/homeView.dart';
@@ -78,7 +72,7 @@ class HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color.fromARGB(255,250,250,250),
+      backgroundColor: Colors.white,
       extendBody: true,
       bottomNavigationBar: _bottomAppBar(
         currentIndex: _currentIndex,
@@ -113,7 +107,6 @@ class _bottomAppBar extends StatelessWidget {
     return Container(
       height: 90,
       decoration: const BoxDecoration(
-
         boxShadow: [
           BoxShadow(
             color: Colors.black26,

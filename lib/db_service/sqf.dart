@@ -3,7 +3,6 @@ import '../model/cardModel.dart';
 
 class DbHelper {
   late Database database;
-
   static DbHelper dbHelper = DbHelper();
   final String databaseName = 'deck.db';
   String? tableName = 'no_table';
@@ -27,7 +26,40 @@ class DbHelper {
         $answerColumn TEXT
       )
     ''');}
+      onCreate: (db, version) {
+        db.execute('''
+        CREATE TABLE $tableName 
+        ( $idColumn INTEGER PRIMARY KEY AUTOINCREMENT, 
+        $questionColumn TEXT, 
+        $answerColumn TEXT ); 
+        CREATE TABLE usage_times ( 
+        id INTEGER PRIMARY KEY AUTOINCREMENT, 
+        duration INTEGER ); 
+        ''');
+      },
     );
+  }
+
+  Future<void> saveUsageTime(int duration) async {
+    await database.insert(
+      'usage_times',
+      {
+        'duration': duration,
+      },
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+  }
+
+  Future<void> printUsageTimes() async {
+    final List<Map<String, dynamic>> usageTimes =
+        await database.query('usage_times', orderBy: 'id DESC');
+    for (var row in usageTimes) {
+      print('ID: ${row['id']}, Duration: ${row['duration']} seconds');
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> getUsageTimes() async {
+    return await database.query('usage_times', orderBy: 'id DESC');
   }
 
   Future<List<Cards>> getAllCards() async {
@@ -37,17 +69,14 @@ class DbHelper {
     return cards.map((e) => Cards.fromMap(e)).toList();
   }
 
-//INSERT
   insertNewCard(Cards card) {
     database.insert(tableName!, card.toMap());
   }
 
-//DELETE
   deleteCard(Cards card) {
     database.delete(tableName!, where: '$idColumn=?', whereArgs: [card.id]);
   }
 
-//DELETE ALL
   Future<void> clearTable() async {
     final db = await database;
 
@@ -56,7 +85,6 @@ class DbHelper {
         .execute('VACUUM'); // Optimizes the database and resets AUTOINCREMENT
   }
 
-//UPDATECARD
   updateCard(Cards card) async {
     final db = await database;
     await db.update(
@@ -65,10 +93,7 @@ class DbHelper {
   }
 
   Future<void> insertNewCardsFromMap(
-
       Map<String, String> questionsAndAnswers) async {
-    ;
-
     for (var entry in questionsAndAnswers.entries) {
       await database.insert(
         tableName!,
@@ -107,12 +132,8 @@ class DbHelper {
 
   Future<void> deleteAllTables() async {
     final db = await database;
-
     try {
-      // Fetch the list of table names
       final tableNames = await getTableNames();
-
-      // Loop through the tables and drop each one
       for (var tableName in tableNames) {
         await db.execute('DROP TABLE IF EXISTS $tableName');
       }
