@@ -1,9 +1,13 @@
 // ignore_for_file: camel_case_types, file_names
 
 import 'package:flutter/material.dart';
-import 'package:project_fluttercse10/view/Quiz%20View/quizView.dart';
+
+import 'package:project_fluttercse10/widgets/deckWidget.dart';
+import 'package:provider/provider.dart';
 
 import '../../getset.dart';
+
+import '../../provider/deckProvider.dart';
 
 //VIEW FOR ADD/CREATE FLASH CARD
 class deckView extends StatelessWidget {
@@ -11,10 +15,9 @@ class deckView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      // Makes the content scrollable
-      child: Stack(
+    return Stack(
         children: [
+
           Container(
             width: getWid.wSize,
             height: getHgt.hSize / 2.8,
@@ -23,55 +26,64 @@ class deckView extends StatelessWidget {
                 borderRadius:
                     const BorderRadius.vertical(bottom: Radius.circular(15))),
           ),
-          Center(
+           Center(
             child: Column(
               children: [
                 const SizedBox(height: 350),
-                Container(
-                  decoration: BoxDecoration(
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.grey.withOpacity(0.8),
-                        blurRadius: 35,
-                        spreadRadius: 2,
-                        offset: const Offset(0, 0),
-                      ),
-                    ],
-                  ),
-                  child: Card(
-                    shape: RoundedRectangleBorder(
-                      side: const BorderSide(
-                        color: Colors.white70,
-                        width: 1.0,
-                      ),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    elevation: 0,
-                    clipBehavior: Clip.hardEdge,
-                    child: InkWell(
-                      splashColor: Colors.blue.withAlpha(30),
-                      onTap: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => const quizView()));
-                      },
-                      child: const SizedBox(
-                        width: 350,
-                        height: 80,
-                        child: Padding(
-                          padding: EdgeInsets.all(20.0),
-                          child: Text('Deck 1'),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
+                const createTable(),
+                const deleteAllButton(),
+                TableListWidget(),
               ],
             ),
           ),
+
         ],
-      ),
     );
+  }
+}
+
+class deleteAllButton extends StatelessWidget {
+  const deleteAllButton({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<deckProvider>(builder: (BuildContext context, provider, Widget? child) =>
+        ElevatedButton(onPressed: (){
+          provider.deleteAllTables();
+      }, child: const Text('Delete all')),
+    );
+  }
+}
+
+
+class createTable extends StatefulWidget {
+  const createTable({super.key});
+
+  @override
+  State<createTable> createState() => _createTableState();
+}
+
+class _createTableState extends State<createTable> {
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<deckProvider>(
+        builder: (BuildContext context, provider, Widget? child) => Column(
+      children: [
+        TextField(
+          controller: provider.tableNameController,
+        ),
+        ElevatedButton(onPressed:(){
+          if (provider.tableNameController.text.isNotEmpty) {
+            List<String> a = provider.tableNameController.text.split(" ");
+            String b = a.join("_");
+            provider.createTable(b);
+            provider.fetchTableNames();
+          }
+          // print('Table Created: ${provider.tableNameController.text}');
+        }, child: const Text('Create table'))
+      ],
+    ));
   }
 }
