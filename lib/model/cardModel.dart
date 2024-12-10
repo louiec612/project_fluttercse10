@@ -4,10 +4,12 @@ class Cards{
   late String question;
   late String answer;
 
+
   Cards({
    this.id,
     required this.question,
-    required this.answer
+    required this.answer,
+
 });
 
   Map<String,dynamic> toMap(){
@@ -22,7 +24,8 @@ class Cards{
     return Cards(
       id : map['id'],
       question: map['question'],
-      answer: map['answer']
+      answer: map['answer'],
+
     );
   }
 }

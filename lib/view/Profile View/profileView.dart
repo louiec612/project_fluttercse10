@@ -1,12 +1,7 @@
-// ignore_for_file: file_names, camel_case_types
 import 'package:syncfusion_flutter_charts/charts.dart';
 import 'package:bootstrap_icons/bootstrap_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:project_fluttercse10/getset.dart';
-import 'package:syncfusion_flutter_charts/charts.dart';
-import 'package:project_fluttercse10/main.dart';
-import '../../generator.dart';
-import 'package:google_generative_ai/google_generative_ai.dart';
 
 //VIEW FOR PROFILE
 class profileView extends StatefulWidget {
@@ -297,7 +292,11 @@ class _chartTableState extends State<chartTable> {
     _tooltip = TooltipBehavior(enable: true);
     super.initState();
   }
-
+  @override
+  void dispose() {
+    // Cancel any async operations or subscriptions here
+    super.dispose();
+  }
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -309,7 +308,7 @@ class _chartTableState extends State<chartTable> {
             majorGridLines: MajorGridLines(width: 0), // Remove vertical grid lines
           ),
           primaryYAxis: NumericAxis(minimum: 0, maximum: 8, interval: 2,
-            majorGridLines: MajorGridLines(
+            majorGridLines: const MajorGridLines(
             color: Colors.grey),
             axisLabelFormatter: (AxisLabelRenderDetails details) {
               // Append 'h' to each Y-axis label

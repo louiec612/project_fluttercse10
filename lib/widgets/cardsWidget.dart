@@ -13,18 +13,16 @@ class CardWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    bool focus = false;
-
     return InkWell(
         child: Column(
           children: [
-            SizedBox(height:10),
+            const SizedBox(height:10),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20.0),
               child: Container(
                 decoration: BoxDecoration(
                   color: Colors.white,
-                  border: Border.all(color: Color.fromARGB(228,227,233,255),width: 3),
+                  border: Border.all(color: const Color.fromARGB(228,227,233,255),width: 3),
                   borderRadius: BorderRadius.circular(15),
               ),
                 child: ListTile(// Background color of the tile
@@ -35,11 +33,11 @@ class CardWidget extends StatelessWidget {
                   title: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(card.question,style: TextStyle(
+                      Text(card.question,style: const TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 16
                       ),),
-                      Divider(indent: 5,),
+                      const Divider(indent: 5,),
                       Text(card.answer)
                     ],
                   ),
@@ -91,7 +89,7 @@ class CardWidget extends StatelessWidget {
                 ),
               ),
             ),
-            SizedBox(height:10),
+            const SizedBox(height:10),
           ],
         ),
 

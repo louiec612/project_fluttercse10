@@ -8,6 +8,8 @@ class deckProvider with ChangeNotifier {
   List<String> _tableNames = [];
   List<String> get tableNames => _tableNames;
 
+  List<String> _recentTables = [];
+  List<String> get recentTables => _recentTables;
 
   TextEditingController tableNameController = TextEditingController();
 
@@ -20,16 +22,33 @@ class deckProvider with ChangeNotifier {
 
   Future<void> createTable(String table) async {
     await DbHelper.dbHelper.createTable(table);
+    fetchTableNames();
     notifyListeners();
   }
 
+  Future<bool> tableExist(String table) async {
+    bool a = await DbHelper.dbHelper.tableExist(table);
+    return a;
+  }
+
   Future<void> fetchTableNames() async {
-    _tableNames = await (DbHelper.dbHelper.getTableNames());
+    _tableNames = await (DbHelper.dbHelper.getTableNamesSortedByCreation());
+    notifyListeners();
+  }
+
+   Future<void> fetchRecentTables() async {
+    _recentTables = await (DbHelper.dbHelper.getTableNamesSortedByCreationLimited());
     notifyListeners();
   }
 
   Future<void> deleteAllTables() async {
     await (DbHelper.dbHelper.deleteAllTables());
+    await fetchTableNames();
+    notifyListeners();
+  }
+
+  Future<void> deleteTable(String table) async{
+    await DbHelper.dbHelper.deleteTable(table);
     await fetchTableNames();
     notifyListeners();
   }

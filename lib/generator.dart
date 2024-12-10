@@ -16,7 +16,7 @@ class QuestionAnswerGenerator {
     );
 
     var fullPrompt =
-        'I want you to create a dart map like this, "Question": "Answer", Any topic, and exactly $num questions with different question types. Remove ```dart at the beginning and end specifically, make the questions about $prompt, shorten the question into 1 sentence and you decide if the answer should be 1-3 words or the answer should be long, but short answer as much as possible. Make sure to not make any errors or I will be sad and depressed';
+        'I want you to create a dart map like this, "Question": "Answer", Any topic, and exactly $num questions with different question types. Remove ```dart at the beginning and end specifically, make the questions about $prompt, shorten the question into 1 sentence and you decide if the answer should be 1-3 words or the answer should be long, If the subject is complicated limit yourself to 1 sentence with 10-15 words.. Make sure to not make any errors or I will be sad and depressed';
 
     final content = [Content.text(fullPrompt)];
     final response = await model.generateContent(content);

@@ -22,18 +22,18 @@ class _addFlashCardViewState extends State<addFlashCardView> {
     return Consumer<CardClass>(
       builder: (BuildContext context, provider, Widget? child) => Column(
         children: [
-          Container(
-            color: Colors.white,
-            child: Column(
-              children: [
-                const SizedBox(height: 10),
-                const dropdownDeck(),
-                const SizedBox(height: 10),
-                createBar(
-                  provider: provider,
-                ),
-                const SizedBox(height: 20),
-                Padding(
+          Column(
+            children: [
+              const SizedBox(height: 10),
+              const dropdownDeck(),
+              const SizedBox(height: 10),
+              createBar(
+                provider: provider,
+              ),
+              const SizedBox(height: 10),
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Padding(
                   padding: const EdgeInsets.all(10.0),
                   child: Column(children: [
                     Row(
@@ -50,14 +50,14 @@ class _addFlashCardViewState extends State<addFlashCardView> {
                         const changeType(),
                       ],
                     ),
-                    SizedBox(height: 10),
+                    const SizedBox(height: 10),
                   ]),
-                )
-              ],
-            ),
+                ),
+              )
+            ],
           ),
           const Divider(indent: 50, endIndent: 50,),
-          Text('Recently Added ${provider.allCards.length}',style: TextStyle(
+          Text('Recently Added ${provider.allCards.length}',style: const TextStyle(
             fontWeight: FontWeight.bold,
             fontSize: 25,
           ),),
@@ -160,46 +160,38 @@ class changeType extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Consumer<animation>(
-        builder: (BuildContext context, give, Widget? child) => SizedBox(
-              height: 50,
+        builder: (BuildContext context, give, Widget? child) =>
+            SizedBox(
+              height:30,
               child: ElevatedButton(
                 onPressed: () {
                   give.reverseValue();
                 },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor:
-                      _isHoveredGenerate ? Colors.grey[700] : Colors.grey[600],
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  elevation: 5,
-                  shadowColor: Colors.black.withOpacity(0.3),
-                ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     const Text(
                       'Front & Back',
-                      style: TextStyle(color: Colors.white),
                     ),
-                    const SizedBox(width: 5),
-                    Switch(
-                      value: give.value,
-                      onChanged: (bool value) {
-                        give.setSwitchValue(value);
-                        if (value)
-                          give.setType('Question');
-                        else
-                          give.setType('A Topic');
-                      },
-                      activeColor: Colors.white,
-                      activeTrackColor: Colors.teal,
-                      inactiveTrackColor: Colors.grey[400],
+                    Transform.scale(
+                      scale: 0.7,
+                      child: Switch(
+                        value: give.value,
+                        onChanged: (bool value) {
+                          give.setSwitchValue(value);
+                          if (value)
+                            give.setType('Question');
+                          else
+                            give.setType('A Topic');
+                        },
+
+                      ),
                     ),
                   ],
                 ),
               ),
-            ));
+            )
+    );
   }
 }
 
@@ -211,25 +203,12 @@ class generateButton extends StatefulWidget {
   State<generateButton> createState() => _generateButtonState();
 }
 
-bool _isHoveredGenerate = false;
-
 class _generateButtonState extends State<generateButton> {
   @override
   Widget build(BuildContext context) {
     return Consumer<animation>(
-      builder: (BuildContext context, give, Widget? child) => MouseRegion(
-        onEnter: (_) {
-          setState(() {
-            _isHoveredGenerate = true;
-          });
-        },
-        onExit: (_) {
-          setState(() {
-            _isHoveredGenerate = false;
-          });
-        },
-        child: SizedBox(
-          height: 50,
+      builder: (BuildContext context, give, Widget? child) => SizedBox(
+          height: 30,
           child: ElevatedButton(
             onPressed: () {
               if (give.value == false) {
@@ -237,27 +216,10 @@ class _generateButtonState extends State<generateButton> {
                 print('Prompt ${widget.provider.promptController.text}');
               }
             },
-            style: ElevatedButton.styleFrom(
-              backgroundColor:
-                  _isHoveredGenerate ? Colors.grey[700] : Colors.grey[600],
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-              elevation: 5,
-              shadowColor: Colors.black.withOpacity(0.3),
+            child: const Text('Generate'),
             ),
-            child: AnimatedDefaultTextStyle(
-              duration: const Duration(milliseconds: 200),
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: _isHoveredGenerate ? 16 : 14,
-              ),
-              child: const Text('Generate'),
-            ),
-          ),
-        ),
-      ),
-    );
+          )
+      );
   }
 }
 
@@ -271,23 +233,15 @@ class addButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 50,
+      height: 30,
       child: ElevatedButton(
         onPressed: () async {
           provider.insertNewCard();
         },
-        style: ElevatedButton.styleFrom(
-          backgroundColor:
-              _isHoveredGenerate ? Colors.grey[700] : Colors.grey[600],
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
-          elevation: 5,
-          shadowColor: Colors.black.withOpacity(0.3),
-        ),
+
         child: const Text(
           'Add Card',
-          style: TextStyle(color: Colors.white),
+
         ),
       ),
     );
@@ -344,31 +298,15 @@ class _importButtonState extends State<importButton> {
         });
       },
       child: SizedBox(
-        height: 50,
+        height: 30,
         child: ElevatedButton(
           onPressed: () {
             pickAndExtractText(context);
           },
-          style: ElevatedButton.styleFrom(
-            backgroundColor:
-                isHoveredImport ? Colors.grey[700] : Colors.grey[600],
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
-            elevation: 5,
-            shadowColor: Colors.black.withOpacity(0.3),
-          ),
-          child: AnimatedDefaultTextStyle(
-            duration: const Duration(milliseconds: 200),
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: isHoveredImport ? 16 : 14,
-            ),
-            child: const Text('Import'),
+          child: const Text('Import'),
           ),
         ),
-      ),
-    );
+      );
   }
 }
 
@@ -398,19 +336,14 @@ class _createBarState extends State<createBar> {
         curve: Curves.easeInOut,
         height: give.value ? containerHeight + 40 : containerHeight,
         decoration: BoxDecoration(
-          color: Colors.white,
-          border: Border.all(color: Color.fromARGB(228,227,233,255),width: 3),
+          border: Border.all(color: const Color.fromARGB(228,227,233,255),width: 3),
           borderRadius: BorderRadius.circular(15),
         ),
         child: Column(
           children: [
             Padding(
               padding: const EdgeInsets.fromLTRB(10.0, 10, 0, 0),
-              child: InkWell(
-                onTap: (){
-
-                },
-                child: TextField(
+              child: TextField(
                   controller: give.value
                       ? widget.provider.questionController
                       : widget.provider.promptController,
@@ -419,7 +352,6 @@ class _createBarState extends State<createBar> {
                   ),
                 ),
               ),
-            ),
             AnimatedSize(
               duration: const Duration(milliseconds: 400),
               curve: Curves.easeIn,

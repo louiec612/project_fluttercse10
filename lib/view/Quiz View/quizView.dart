@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:project_fluttercse10/main.dart';
+
 import 'package:carousel_slider/carousel_slider.dart';
+
 import 'package:provider/provider.dart';
 import '../../getset.dart';
 import '../../model/cardModel.dart';
 import '../../provider/cardProvider.dart';
-import '../Home View/homeView.dart';
+
 
 class quizView extends StatefulWidget {
-  const quizView({super.key});
-
+  quizView({super.key,required this.name});
+  String name;
   @override
   State<quizView> createState() => _quizViewState();
 }
@@ -19,7 +20,6 @@ class _quizViewState extends State<quizView> {
   int _current = 0;
   CarouselSliderController buttonCarouselController =
       CarouselSliderController();
-  String cardName = "Flashcard Name";
   @override
   Widget build(BuildContext context) {
     return Consumer<CardClass>(
@@ -28,8 +28,8 @@ class _quizViewState extends State<quizView> {
           child: Column(
             children: [
               const SizedBox(height: 100),
-              Row(children: [
-                SizedBox(width: getWid.wSize * 2 / 10),
+              Row(mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
                 IconButton(
                   iconSize: 30,
                   onPressed: () {
@@ -39,7 +39,7 @@ class _quizViewState extends State<quizView> {
                 ),
                 const SizedBox(width: 10),
                 Text(
-                  cardName,
+                  widget.name,
                   style: const TextStyle(
                       fontSize: 20, fontWeight: FontWeight.bold),
                 )
@@ -73,7 +73,7 @@ class _quizViewState extends State<quizView> {
                       value: (_current + 1) / provider.allCards.length,
                       minHeight: 10,
                       backgroundColor: Colors.grey[300],
-                      color: Colors.blue,
+                        color: Theme.of(context).colorScheme.primary,
                     ),
                   ),
                 ],
@@ -90,8 +90,7 @@ class VisibilityCard extends StatefulWidget {
   final Cards card;
 
 
-  const VisibilityCard({Key? key, required this.card})
-      : super(key: key);
+  const VisibilityCard({super.key, required this.card});
 
   @override
   State<VisibilityCard> createState() => _VisibilityCardState();
@@ -121,15 +120,18 @@ class _VisibilityCardState extends State<VisibilityCard> {
                 height:
                     _isSmall ? getHgt.hSize / 3.4 : (getHgt.hSize / 3.4) + 50,
                 decoration: BoxDecoration(
-                  color: color.col,
+                  color: Theme.of(context).colorScheme.primary,
                 ),
                 child: Center(
-                    child: Text(
-                  widget.card.question,
-                  style: const TextStyle(
-                    color: Colors.white,
-                  ),
-                )),
+                    child: Padding(
+                      padding: const EdgeInsets.all(20.0),
+                      child: Text(
+                                        widget.card.question,
+                                        style: const TextStyle(
+                      color: Colors.white,
+                                        ),
+                                      ),
+                    )),
               ),
             ),
             const SizedBox(height: 30),
@@ -199,14 +201,17 @@ class _answerContainer extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       height: 200,
-      width: 200,
+      width: 250,
       decoration: BoxDecoration(
-          color: color.col, borderRadius: BorderRadius.circular(20)),
+          color: Theme.of(context).colorScheme.primary, borderRadius: BorderRadius.circular(20)),
       child: Center(
-        child: Text(widget.card.answer,
-            style: const TextStyle(
-              color: Colors.white,
-            )),
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Text(widget.card.answer,
+              style: const TextStyle(
+                color: Colors.white,
+              )),
+        ),
       ),
     );
   }

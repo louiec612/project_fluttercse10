@@ -1,7 +1,13 @@
+import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
 import 'package:project_fluttercse10/getset.dart';
+import 'package:project_fluttercse10/provider/pageProvider.dart';
+import 'package:project_fluttercse10/provider/themeProvider.dart';
+import 'package:provider/provider.dart';
 
-import '../../main.dart';
+import '../../main/main.dart';
+import '../../provider/deckProvider.dart';
+import '../../widgets/deckWidgetSquare.dart';
 
 class homeView extends StatefulWidget {
   const homeView({super.key});
@@ -13,9 +19,11 @@ class homeView extends StatefulWidget {
 class _homeViewState extends State<homeView> {
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      // Makes the content scrollable
-      child: Stack(
+    final deck = Provider.of<deckProvider>(context);
+    final theme = Provider.of<themesChoice>(context);
+    final page = Provider.of<PageProvider>(context);
+    deck.fetchRecentTables();
+    return Stack(
         children: [
           Container(
             width: getWid.wSize,
@@ -26,10 +34,14 @@ class _homeViewState extends State<homeView> {
               const BorderRadius.vertical(bottom: Radius.circular(15)),
             ),
           ),
+          // ElevatedButton(onPressed: (
+          //     ){
+          //   theme.setTheme(FlexScheme.redWine);
+          // }, child: Text('Color1')),
           Align(
             alignment: Alignment.topLeft,
             child: Padding(
-              padding: const EdgeInsets.only(left: 20.0,top: 50.0),
+              padding: const EdgeInsets.only(left: 20.0,top: 100),
               child: Row(
                 children: [
                   const SizedBox(
@@ -57,11 +69,11 @@ class _homeViewState extends State<homeView> {
           ),
           Column(
             children: [
-              const SizedBox(height: 160),
+              SizedBox(height: getWid.wSize/1.65),
               Center(
                 child: Container(
                   width: getWid.wSize * 0.93,
-                  height: 220,
+                  height: 150,
                   decoration: const BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.all(Radius.circular(27)),
@@ -77,9 +89,7 @@ class _homeViewState extends State<homeView> {
                     child: Column(
                       children: [
                         Text("Search Flashcards",style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),),
-                        SizedBox(height: 10,),
-                        Text("It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout."),
-                        SizedBox(height: 10),
+                        SizedBox(height: 8,),
                         TextField( decoration: InputDecoration( hintText: 'Search Here', border: OutlineInputBorder( borderRadius: BorderRadius.all(Radius.circular(12)), ), prefixIcon: Icon(Icons.search),
                         ),
                         ),
@@ -94,74 +104,24 @@ class _homeViewState extends State<homeView> {
                 children: [
                   const Padding(
                     padding: EdgeInsets.all(20.0),
-                    child: Text("Flashcard",style: TextStyle(fontWeight: FontWeight.bold,fontSize: 22),),
+                    child: Text("Flashcard"),
                   ),
                   Padding(
                     padding: const EdgeInsets.all(20.0),
                     child: ElevatedButton(
                       onPressed: () {
-                        homePageKey.currentState?.onButtonPressed(4);
+                        page.jumpToPage(3);
                       },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.black26,
-                        fixedSize: const Size(110, 35),
-                        shape: RoundedRectangleBorder( borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                      child: const Text('View All',style: TextStyle(color: Colors.white),),
+                      child: const Text('View All'),
                     ),
                   ),
                 ],
               ),
-              Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: GridView.builder(
-                  shrinkWrap: true,
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 3,
-                    crossAxisSpacing: 5.0,
-                    mainAxisSpacing: 5.0,
-                  ),
-                  itemCount: 6,
-                  itemBuilder: (context, index) {
-                    return  Padding(
-                        padding: const EdgeInsets.all(3.0),
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              border: Border.all(color: Color.fromARGB(228,227,233,255),width: 3),
-                              borderRadius: BorderRadius.circular(15),
-
-                            ),
-                            child: InkWell(
-                              onTap: () {
-                                print('Flashcard ${index + 1} clicked');
-                              },
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                children: [
-                                  Padding(
-                                    padding: const EdgeInsets.all(16.0),
-                                    child: Text(
-                                      'Flashcard ${index + 1}',
-                                      style: const TextStyle(fontSize: 16),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-
-                          ),
-
-                    );
-                  },
-                ),
-              ),
-              const SizedBox(height: 50,)
+              const deckWidgetSquare() ,
             ],
           ),
+
         ],
-      ),
     );
   }
 }

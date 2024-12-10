@@ -7,6 +7,10 @@ import '../provider/cardProvider.dart'; // Your provider file
 
 
 class TableListWidget extends StatelessWidget {
+
+  const TableListWidget({super.key});
+
+
   @override
   Widget build(BuildContext context) {
     return Consumer<deckProvider>(
@@ -24,7 +28,6 @@ class TableListWidget extends StatelessWidget {
                   itemCount: tableNameProvider.tableNames.length,
                   itemBuilder: (context, index) {
                     final tableName = tableNameProvider.tableNames[index];
-
                     return Container(
                       height: 100,
                       decoration: BoxDecoration(
@@ -54,7 +57,69 @@ class TableListWidget extends StatelessWidget {
                                   'Cards: ${snapshot.data}'); // Display the resolved data
                           },
                         ),
-                        trailing: const Icon(Icons.table_chart),
+                        trailing:Padding(
+                          padding: const EdgeInsets.all(0),
+                          child: PopupMenuButton(
+                            itemBuilder: (BuildContext context) =>
+                            <PopupMenuEntry>[
+                              PopupMenuItem(
+                                child: const Text('Delete'),
+                                onTap: (){
+                                  showDialog<String>(
+                                      context: context,
+                                      builder: (BuildContext context) => AlertDialog(
+                                    title: const Text('Confirmation'),
+                                    content: const Text('Delete Deck?'),
+                                    actions: <Widget>[
+
+                                      TextButton(
+                                        onPressed: () => Navigator.pop(context, 'Cancel'),
+                                        child: const Text('Cancel'),
+                                      ),
+                                      TextButton(
+                                        onPressed: (){
+                                          tableNameProvider.deleteTable(tableName);
+                                          Navigator.pop(context, 'OK');
+                                        },
+                                        child: const Text('OK'),
+                                      ),
+                                    ],
+                                  ));
+                                },
+                              ),
+                              PopupMenuItem(
+                                  child: const Text('Edit'),
+                                  onTap: (){
+                                    showDialog<String>(
+                                      context: context,
+                                      builder: (BuildContext context) => AlertDialog(
+                                        title: const Text('Confirmation'),
+                                        content: const Text('AlertDialog description'),
+                                        actions: <Widget>[
+                                          // TextField(
+                                          //   controller: provider.questionController,
+                                          // ),
+                                          // TextField(
+                                          //   controller: provider.answerController,
+                                          // ),
+                                          TextButton(
+                                            onPressed: () => Navigator.pop(context, 'Cancel'),
+                                            child: const Text('Cancel'),
+                                          ),
+                                          TextButton(
+                                            onPressed: (){
+                                              // provider.updateCard(card);
+                                            Navigator.pop(context, 'OK');
+                                            },
+                                            child: const Text('OK'),
+                                          ),
+                                        ],
+                                      ),
+                                    );}
+                              ),
+                            ],
+                          ),
+                        ),
                         onTap: () async{
                           DbHelper.dbHelper.tableName = tableName;
                           await cards.getCards();
@@ -62,7 +127,7 @@ class TableListWidget extends StatelessWidget {
                             Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                    builder: (context) => const quizView()));
+                                    builder: (context) => quizView(name: tableName)));
                           }
                         },
                       ),
