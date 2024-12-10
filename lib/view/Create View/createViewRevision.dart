@@ -1,3 +1,4 @@
+import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:project_fluttercse10/provider/deckProvider.dart';
@@ -22,6 +23,32 @@ class _addFlashCardViewState extends State<addFlashCardView> {
     return Consumer<CardClass>(
       builder: (BuildContext context, provider, Widget? child) => Column(
         children: [
+          Container(
+            width: double.infinity, // Full width
+            height: MediaQuery.of(context).size.height / 4,
+            decoration: BoxDecoration(
+              color: Theme.of(context).primaryColor,
+              borderRadius: const BorderRadius.vertical(bottom: Radius.circular(15)),
+            ),
+            child: const Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.create, size: 80, color: Colors.white),
+                  SizedBox(height: 10),
+                  Text(
+                    'Create Your Flash Cards',
+                    style: TextStyle(
+                      fontSize: 24,
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+
           Column(
             children: [
               const SizedBox(height: 10),
@@ -100,50 +127,29 @@ class dropdownDeck extends StatelessWidget {
           builder: (BuildContext context, card, Widget? child) {
             return Container(
                 decoration: BoxDecoration(
-                  //color: Colors.blue.shade50, // Background color
                   border: Border.all(color: Colors.transparent), // Border
                   borderRadius: BorderRadius.circular(8), // Rounded corners
                 ),
-                child: DropdownButton(
-                  value : items.contains(deck.selectedValue) ? deck.selectedValue : null,
-                  items: items.map<DropdownMenuItem<String>>((String menu) {
-                    return DropdownMenuItem<String>(
-                      value: menu,
-                      child: Text(menu), // Display text for the item
-                    );
-                  }).toList(),
-                  hint: const Text('Select Deck'),
-                  onChanged: (String? newValue) {
-                    if (newValue != null) {
-                      DbHelper.dbHelper.tableName = newValue;
-                      card.getCards();
-                      deck.updateSelectedValue(newValue);
+                child: DropdownButtonHideUnderline(
+                  child: DropdownButton2(
+                    value : items.contains(deck.selectedValue) ? deck.selectedValue : null,
+                    items: items.map<DropdownMenuItem<String>>((String menu) {
+                      return DropdownMenuItem<String>(
+                        value: menu,
+                        child: Text(menu), // Display text for the item
+                      );
+                    }).toList(),
+                    hint: const Text('Select Deck'),
+                    onChanged: (String? newValue) {
+                      if (newValue != null) {
+                        DbHelper.dbHelper.tableName = newValue;
+                        card.getCards();
+                        deck.updateSelectedValue(newValue);
+                      }
                     }
-                  }
-                  ,
+                    ,
+                  ),
                 )
-                // DropdownMenu(
-                //   menuStyle: MenuStyle(
-                //     side:  WidgetStateProperty.all(BorderSide(color: Colors.blue, width: 2)),
-                //   ),
-                //   initialSelection: deck.selectedValue,
-                //   label: const Text('Select Deck'),
-                //   dropdownMenuEntries: items.map<DropdownMenuEntry<String>>(
-                //     (String menu) {
-                //       return DropdownMenuEntry<String>(
-                //         value: menu,
-                //         label: menu,
-                //       );
-                //     },
-                //   ).toList(),
-                //   onSelected: (newValue) {
-                //     if (newValue != null) {
-                //       DbHelper.dbHelper.tableName = newValue;
-                //       card.getCards();
-                //       deck.updateSelectedValue(newValue);
-                //     }
-                //   },
-                // ),
                 );
           },
         );
@@ -377,6 +383,6 @@ class _createBarState extends State<createBar> {
           ],
         ),
       ),
-    ));
+    );
   }
 }

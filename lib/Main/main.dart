@@ -249,22 +249,33 @@ class _bottomAppBar extends StatelessWidget {
                   ),
                 ),
                 ZoomTapAnimation(
-                  child: IconButton(
-                    onPressed: () => provider.jumpToPage(1), // Navigate to page 1
-                    icon: const Icon(Icons.account_circle_outlined, size: 25),
-                    color: provider.currentPage == 1
-                        ? Theme.of(context).primaryColor
-                        : Colors.grey,
+                  child: Column(
+                    children: [
+                      IconButton(
+                        onPressed: () => provider.jumpToPage(1), // Navigate to page 1
+                        icon: const Icon(Icons.account_circle_outlined, size: 25),
+                        color: provider.currentPage == 1
+                            ? Theme.of(context).primaryColor
+                            : Colors.grey,
+                      ),
+                      const Text('Profile')
+                    ],
                   ),
+
                 ),
       
                 ZoomTapAnimation(
-                  child: IconButton(
-                    onPressed: (){}, // Navigate to page 1
-                    icon: const Icon(Icons.settings, size: 25),
-                    color: provider.currentPage == 4
-                        ? Theme.of(context).primaryColor
-                        : Colors.grey,
+                  child: Column(
+                    children: [
+                      IconButton(
+                        onPressed: (){}, // Navigate to page 1
+                        icon: const Icon(Icons.settings, size: 25),
+                        color: provider.currentPage == 4
+                            ? Theme.of(context).primaryColor
+                            : Colors.grey,
+                      ),
+                      const Text('Settings')
+                    ],
                   ),
                 ),
               ],

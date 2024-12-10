@@ -1,13 +1,9 @@
 // ignore_for_file: camel_case_types, file_names
 
 import 'package:flutter/material.dart';
-
 import 'package:project_fluttercse10/widgets/deckWidget.dart';
 import 'package:provider/provider.dart';
-
-import '../../db_service/sqf.dart';
 import '../../getset.dart';
-
 import '../../provider/deckProvider.dart';
 
 //VIEW FOR ADD/CREATE FLASH CARD
@@ -24,8 +20,7 @@ class deckView extends StatelessWidget {
           decoration: BoxDecoration(
               color: Theme.of(context).primaryColor,
               borderRadius:
-                  const BorderRadius.vertical(bottom: Radius.circular(15)),
-        ),
+                  const BorderRadius.vertical(bottom: Radius.circular(15))),
       child: const Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -43,20 +38,19 @@ class deckView extends StatelessWidget {
           ],
         ),
       ),
-        ),
+    ),
         Center(
           child: Column(
             children: [
-              const SizedBox(height: 350),
+              SizedBox(height: getWid.wSize / 1.20),
+
               const createTable(),
-              const deleteAllButton(),
-              TableListWidget(),
+              // deleteAllButton(),
+              const TableListWidget(),
             ],
           ),
         ),
-
-
-        ],
+      ],
     );
   }
 }
