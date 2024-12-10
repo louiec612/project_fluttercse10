@@ -5,8 +5,10 @@ import 'package:project_fluttercse10/widgets/cardsWidget.dart';
 import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_pdf/pdf.dart';
 import '../../db_service/sqf.dart';
+import '../../getset.dart';
 import '../../provider/animationProvider.dart';
 import '../../provider/cardProvider.dart';
+
 
 class addFlashCardView extends StatefulWidget {
   const addFlashCardView({super.key});
@@ -19,58 +21,98 @@ class _addFlashCardViewState extends State<addFlashCardView> {
   @override
   Widget build(BuildContext context) {
     final animate1 = Provider.of<animation>(context);
-    return Consumer<CardClass>(
-      builder: (BuildContext context, provider, Widget? child) => Column(
-        children: [
-          Container(
-            color: Colors.white,
-            child: Column(
-              children: [
-                const SizedBox(height: 10),
-                const dropdownDeck(),
-                const SizedBox(height: 10),
-                createBar(
-                  provider: provider,
-                ),
-                const SizedBox(height: 20),
-                Padding(
-                  padding: const EdgeInsets.all(10.0),
-                  child: Column(children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        importButton(provider: provider),
-                        const SizedBox(width: 5),
-                        if (animate1.value)
-                          addButton(
-                            provider: provider,
-                          ),
-                        if (!animate1.value) generateButton(provider: provider),
-                        const SizedBox(width: 5),
-                        const changeType(),
-                      ],
-                    ),
+    return Column(
+      children: [
+        Stack(
+          children: [
+            Container(
+              width: double.infinity, // Full width
+              height: MediaQuery.of(context).size.height / 4,
+              decoration: BoxDecoration(
+                color: Theme.of(context).primaryColor,
+                borderRadius: const BorderRadius.vertical(bottom: Radius.circular(15)),
+              ),
+              child: const Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.create, size: 80, color: Colors.white),
                     SizedBox(height: 10),
-                  ]),
-                )
+                    Text(
+                      'Create Your Flash Cards',
+                      style: TextStyle(
+                        fontSize: 24,
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+        Expanded(
+          child: Consumer<CardClass>(
+            builder: (BuildContext context, provider, Widget? child) => Column(
+              children: [
+                Container(
+                  color: Colors.white,
+                  child: Column(
+                    children: [
+                      const SizedBox(height: 10),
+                      const dropdownDeck(),
+                      const SizedBox(height: 10),
+                      createBar(
+                        provider: provider,
+                      ),
+                      const SizedBox(height: 20),
+                      Padding(
+                        padding: const EdgeInsets.all(10.0),
+                        child: Column(
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                importButton(provider: provider),
+                                const SizedBox(width: 5),
+                                if (animate1.value)
+                                  addButton(
+                                    provider: provider,
+                                  ),
+                                if (!animate1.value) generateButton(provider: provider),
+                                const SizedBox(width: 5),
+                                const changeType(),
+                              ],
+                            ),
+                            SizedBox(height: 10),
+                          ],
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+                const Divider(indent: 50, endIndent: 50),
+                Text(
+                  'Recently Added ${provider.allCards.length}',
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 25,
+                  ),
+                ),
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: provider.allCards.length,
+                    itemBuilder: (context, index) {
+                      return CardWidget(provider.allCards[index], provider);
+                    },
+                  ),
+                ),
               ],
             ),
           ),
-          const Divider(indent: 50, endIndent: 50,),
-          Text('Recently Added ${provider.allCards.length}',style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 25,
-          ),),
-          Expanded(
-            child: ListView.builder(
-              itemCount: provider.allCards.length,
-              itemBuilder: (context, index) {
-                return CardWidget(provider.allCards[index], provider);
-              },
-            ),
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }
@@ -79,9 +121,9 @@ class dropdownDeck extends StatelessWidget {
   const dropdownDeck({
     super.key,
   });
-
   @override
   Widget build(BuildContext context) {
+
     // List<String> items will be populated with table names from the provider
     return Consumer<deckProvider>(
       builder: (BuildContext context, deck, Widget? child) {
@@ -122,28 +164,6 @@ class dropdownDeck extends StatelessWidget {
                   }
                   ,
                 )
-                // DropdownMenu(
-                //   menuStyle: MenuStyle(
-                //     side:  WidgetStateProperty.all(BorderSide(color: Colors.blue, width: 2)),
-                //   ),
-                //   initialSelection: deck.selectedValue,
-                //   label: const Text('Select Deck'),
-                //   dropdownMenuEntries: items.map<DropdownMenuEntry<String>>(
-                //     (String menu) {
-                //       return DropdownMenuEntry<String>(
-                //         value: menu,
-                //         label: menu,
-                //       );
-                //     },
-                //   ).toList(),
-                //   onSelected: (newValue) {
-                //     if (newValue != null) {
-                //       DbHelper.dbHelper.tableName = newValue;
-                //       card.getCards();
-                //       deck.updateSelectedValue(newValue);
-                //     }
-                //   },
-                // ),
                 );
           },
         );
@@ -160,46 +180,54 @@ class changeType extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Consumer<animation>(
-        builder: (BuildContext context, give, Widget? child) => SizedBox(
-              height: 50,
-              child: ElevatedButton(
-                onPressed: () {
-                  give.reverseValue();
+      builder: (BuildContext context, give, Widget? child) => Container(
+        height: 50,
+        width: 200,
+        decoration: BoxDecoration(
+          color: _isHoveredGenerate ? Colors.grey[700] : Colors.grey[600],
+          borderRadius: BorderRadius.circular(8),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.3),
+              blurRadius: 5,
+              spreadRadius: 1,
+            ),
+          ],
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Text(
+              'Front & Back',
+              style: TextStyle(color: Colors.white),
+            ),
+            const SizedBox(width: 5),
+            Switch(
+              value: give.value,
+              onChanged: (bool value) {
+                give.setSwitchValue(value);
+                if (value) {
+                  give.setType('Question');
+                } else {
+                  give.setType('A Topic');
+                }
+              },
+              activeColor: Colors.white,
+              activeTrackColor: Colors.teal,
+              inactiveTrackColor: Colors.grey[400],
+              thumbIcon: MaterialStateProperty.resolveWith<Icon?>(
+                    (Set<MaterialState> states) {
+                  if (states.contains(MaterialState.selected)) {
+                    return const Icon(Icons.check, color: Colors.white);
+                  }
+                  return const Icon(Icons.close, color: Colors.white);
                 },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor:
-                      _isHoveredGenerate ? Colors.grey[700] : Colors.grey[600],
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  elevation: 5,
-                  shadowColor: Colors.black.withOpacity(0.3),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Text(
-                      'Front & Back',
-                      style: TextStyle(color: Colors.white),
-                    ),
-                    const SizedBox(width: 5),
-                    Switch(
-                      value: give.value,
-                      onChanged: (bool value) {
-                        give.setSwitchValue(value);
-                        if (value)
-                          give.setType('Question');
-                        else
-                          give.setType('A Topic');
-                      },
-                      activeColor: Colors.white,
-                      activeTrackColor: Colors.teal,
-                      inactiveTrackColor: Colors.grey[400],
-                    ),
-                  ],
-                ),
               ),
-            ));
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
 
@@ -239,20 +267,31 @@ class _generateButtonState extends State<generateButton> {
             },
             style: ElevatedButton.styleFrom(
               backgroundColor:
-                  _isHoveredGenerate ? Colors.grey[700] : Colors.grey[600],
+              _isHoveredGenerate ? Colors.grey[700] : Colors.grey[600],
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8),
               ),
               elevation: 5,
               shadowColor: Colors.black.withOpacity(0.3),
             ),
-            child: AnimatedDefaultTextStyle(
-              duration: const Duration(milliseconds: 200),
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: _isHoveredGenerate ? 16 : 14,
-              ),
-              child: const Text('Generate'),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(
+                  Icons.refresh, // Icon for the generate button
+                  color: Colors.white,
+                  size: 20, // Icon size
+                ),
+                const SizedBox(width: 5), // Space between the icon and text
+                AnimatedDefaultTextStyle(
+                  duration: const Duration(milliseconds: 200),
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: _isHoveredGenerate ? 16 : 14,
+                  ),
+                  child: const Text('Generate'),
+                ),
+              ],
             ),
           ),
         ),
@@ -261,7 +300,7 @@ class _generateButtonState extends State<generateButton> {
   }
 }
 
-class addButton extends StatelessWidget {
+class addButton extends StatefulWidget {
   final CardClass provider;
   const addButton({
     super.key,
@@ -269,25 +308,58 @@ class addButton extends StatelessWidget {
   });
 
   @override
+  State<addButton> createState() => _addButtonState();
+}
+
+bool _isHoveredAdd = false;
+
+class _addButtonState extends State<addButton> {
+  @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: 50,
-      child: ElevatedButton(
-        onPressed: () async {
-          provider.insertNewCard();
-        },
-        style: ElevatedButton.styleFrom(
-          backgroundColor:
-              _isHoveredGenerate ? Colors.grey[700] : Colors.grey[600],
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
+    return MouseRegion(
+      onEnter: (_) {
+        setState(() {
+          _isHoveredAdd = true;
+        });
+      },
+      onExit: (_) {
+        setState(() {
+          _isHoveredAdd = false;
+        });
+      },
+      child: SizedBox(
+        height: 50,
+        child: ElevatedButton(
+          onPressed: () async {
+            widget.provider.insertNewCard();
+          },
+          style: ElevatedButton.styleFrom(
+            backgroundColor: _isHoveredAdd ? Colors.grey[700] : Colors.grey[600],
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+            elevation: 5,
+            shadowColor: Colors.black.withOpacity(0.3),
           ),
-          elevation: 5,
-          shadowColor: Colors.black.withOpacity(0.3),
-        ),
-        child: const Text(
-          'Add Card',
-          style: TextStyle(color: Colors.white),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(
+                Icons.add_card, // Icon for the add card button
+                color: Colors.white,
+                size: 20, // Icon size
+              ),
+              const SizedBox(width: 5), // Space between the icon and text
+              AnimatedDefaultTextStyle(
+                duration: const Duration(milliseconds: 200),
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: _isHoveredAdd ? 16 : 14,
+                ),
+                child: const Text('Add Card'),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -306,6 +378,7 @@ bool isHoveredImport = false;
 
 class _importButtonState extends State<importButton> {
   String? text;
+
   pickAndExtractText(BuildContext context) async {
     try {
       final result = await FilePicker.platform.pickFiles(
@@ -351,20 +424,31 @@ class _importButtonState extends State<importButton> {
           },
           style: ElevatedButton.styleFrom(
             backgroundColor:
-                isHoveredImport ? Colors.grey[700] : Colors.grey[600],
+            isHoveredImport ? Colors.grey[700] : Colors.grey[600],
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(8),
             ),
             elevation: 5,
             shadowColor: Colors.black.withOpacity(0.3),
           ),
-          child: AnimatedDefaultTextStyle(
-            duration: const Duration(milliseconds: 200),
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: isHoveredImport ? 16 : 14,
-            ),
-            child: const Text('Import'),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(
+                Icons.file_upload, // Icon for the import button
+                color: Colors.white,
+                size: 20, // Icon size
+              ),
+              const SizedBox(width: 5), // Space between the icon and text
+              AnimatedDefaultTextStyle(
+                duration: const Duration(milliseconds: 200),
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: isHoveredImport ? 16 : 14,
+                ),
+                child: const Text('Import'),
+              ),
+            ],
           ),
         ),
       ),

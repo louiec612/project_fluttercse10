@@ -49,8 +49,11 @@ dependencies:
   provider: ^6.1.2
   syncfusion_flutter_pdf: ^27.2.5
   pdf_text: ^0.5.0
+  lottie: ^3.2.0
 dependency_overrides:
   http: ^0.13.0
+  lottie: ^3.2.0
+
 
 
 dev_dependencies:

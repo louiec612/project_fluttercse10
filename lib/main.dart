@@ -13,7 +13,6 @@ import 'view/Home View/homeView.dart';
 import 'view/Profile View/profileView.dart';
 import 'package:project_fluttercse10/getset.dart';
 import 'package:google_fonts/google_fonts.dart';
-
 import 'package:sqflite_common_ffi_web/sqflite_ffi_web.dart';
 
 
