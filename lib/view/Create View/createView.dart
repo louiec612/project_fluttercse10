@@ -1,4 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:archive/archive.dart';
+import 'package:project_fluttercse10/generator.dart';
+import 'package:project_fluttercse10/test.dart';
+import 'package:sqflite/sqflite.dart';
+import 'package:xml/xml.dart';
+import 'dart:io';
+import 'package:project_fluttercse10/main.dart';
+
+import '../../getset.dart';
+
+final Map<String, String> questionsAndAnswers = generateCard.data;
 
 class AddFlashcardView extends StatefulWidget {
   const AddFlashcardView({super.key});
@@ -7,41 +19,31 @@ class AddFlashcardView extends StatefulWidget {
 }
 
 class _AddFlashcardViewState extends State<AddFlashcardView> {
+  String? _text = null;
+
   bool _isChecked = false;
-  bool _isHoveredImport = false;
-  bool _isHoveredGenerate = false;
+  bool _isVisible = false;
   TextEditingController _topicController = TextEditingController();
+  List<MapEntry<String, String>> questionAnswerPairs = [];
+  bool _isLoading = false;
 
-  final MaterialStateProperty<Icon?> thumbIcon = MaterialStateProperty.resolveWith<Icon?>(
-        (Set<MaterialState> states) {
-      if (states.contains(MaterialState.selected)) {
-        return const Icon(
-          Icons.check,
-          color: Colors.white,
-        );
-      }
-      return const Icon(
-        Icons.close,
-        color: Colors.white,
-      );
-    },
-  );
+  String stateQ = 'A Topic';
+  String stateA = 'AnswerA';
 
-  List<Map<String, String>> _cards = []; // List to store the question and answer pairs
+  double containerHeight = 50;
 
-  void _delayedVisibility(bool value) {
-    setState(() {
-      _isChecked = value;
-    });
-  }
-
-  void _addCard(String question, String answer) {
-    setState(() {
-      _cards.add({
-        'question': question,
-        'answer': answer,
+  void _delayedVisibility() {
+    if (_isVisible == false) {
+      stateQ = 'Question';
+      Future.delayed(const Duration(seconds: 1), () {
+        setState(() {
+          _isVisible = true; // Make the widget visible after 2 seconds
+        });
       });
-    });
+    } else {
+      stateQ = 'A Topic';
+      _isVisible = false;
+    }
   }
 
   @override
@@ -51,10 +53,10 @@ class _AddFlashcardViewState extends State<AddFlashcardView> {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          // Blue Background with Profile Section
+          // Header with profile section
           Container(
             width: MediaQuery.of(context).size.width,
-            height: MediaQuery.of(context).size.height / 3.5,
+            height: MediaQuery.of(context).size.height / 2.8,
             decoration: BoxDecoration(
               color: Theme.of(context).primaryColor,
               borderRadius: const BorderRadius.vertical(
@@ -62,224 +64,179 @@ class _AddFlashcardViewState extends State<AddFlashcardView> {
               ),
             ),
             padding: const EdgeInsets.symmetric(vertical: 20),
-            child: Column(
+            child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
+                CircleAvatar(
+                  radius: 30,
+                  backgroundColor: Colors.grey[400],
+                ),
+                const SizedBox(width: 10),
                 const Text(
-                  'Create Your Own FlashCards!',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
+                  'Andrei Castro',
+                  style: TextStyle(color: Colors.white, fontSize: 18),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 20),
+
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Column(
+              children: [
+
+                ////
+                ////TEXT
+
+                AnimatedContainer(
+                  duration:
+                  const Duration(milliseconds: 500), // Animation duration
+                  curve: Curves.easeInOut,
+                  height: _isChecked ? containerHeight + 40 : containerHeight-4,
+                  decoration: BoxDecoration(
+                    border: Border.all(width: 1),
+                    borderRadius: BorderRadius.circular(15),
+                  ),
+                  child: Column(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(10.0,10,0,0),
+                        child: TextField(
+                          onChanged: (value) {
+                            _text = value;
+                          },
+                          controller: _topicController,
+                          decoration: InputDecoration.collapsed(
+                            hintText: 'Enter $stateQ',
+                          ),
+                        ),
+                      ),
+                      Visibility(
+                        visible: _isVisible,
+                        child: Column(
+                          children: [
+                            Divider(
+
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(10.0,0,0,0),
+                              child: const TextField(
+                                decoration: InputDecoration.collapsed(
+                                  hintText: 'Enter Answer',
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
                 ),
+                ElevatedButton(
+                  onPressed: () async{
+
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.grey[600],
+                  ),
+                  child: const Text(
+                    'Import',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+
                 const SizedBox(height: 10),
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    CircleAvatar(
-                      radius: 30,
-                      backgroundColor: Colors.grey[400],
-                      child: ClipOval(
-                        child: Image.network(
-                          'https://pop.inquirer.net/files/2021/05/gigachad.jpg',
-                          width: 60,
-                          height: 60,
-                          fit: BoxFit.cover,
+                    ///
+                    ///
+                    /// BUTTONS
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () {
+
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.grey[600],
+                        ),
+                        child: const Text(
+                          'Generate',
+                          style: TextStyle(color: Colors.white),
                         ),
                       ),
                     ),
                     const SizedBox(width: 10),
-                    const Text(
-                      'Andrei Castro',
-                      style: TextStyle(color: Colors.white, fontSize: 18),
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () {
+                          // Add functionality for Front & Back button here
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.grey[600],
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Text(
+                              'Front & Back',
+                              style: TextStyle(color: Colors.white),
+                            ),
+                            const SizedBox(width: 5),
+                            Switch(
+                              value: _isChecked,
+                              onChanged: (bool value) {
+                                _delayedVisibility();
+                                setState(() {
+                                  _isChecked = value;
+                                });
+                              },
+                              activeColor: Colors.white,
+                              activeTrackColor: Colors.teal,
+                              inactiveTrackColor: Colors.grey[400],
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
                   ],
                 ),
+
+                const SizedBox(height: 10),
+                // ElevatedButton(
+                //   onPressed: () async {
+                //     String topic = _topicController.text.trim();
+                //     if (topic.isEmpty) {
+                //       ScaffoldMessenger.of(context).showSnackBar(
+                //         const SnackBar(
+                //           content: Text('Please enter a topic!'),
+                //         ),
+                //       );
+                //       return;
+                //     }
+                //     setState(() => _isLoading = true);
+                //
+                //   },
+                //   style: ElevatedButton.styleFrom(
+                //     backgroundColor: Colors.grey[600],
+                //     minimumSize: Size(150, 50),
+                //     padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
+                //     textStyle: const TextStyle(fontSize: 14),
+                //   ),
+                //   child: _isLoading
+                //       ? const CircularProgressIndicator(
+                //     color: Colors.white,
+                //   )
+                //       : const Text(
+                //     'Generate',
+                //     style: TextStyle(color: Colors.white),
+                //   ),
+                // ),
               ],
             ),
           ),
-
-          const SizedBox(height: 30),
-
-          // Enter A Topic Input
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 500),
-              curve: Curves.easeInOut,
-              height: 60,
-              decoration: BoxDecoration(
-                border: Border.all(width: 1, color: Colors.grey[400]!),
-                borderRadius: BorderRadius.circular(15),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 10),
-                child: TextField(
-                  controller: _topicController,
-                  decoration: const InputDecoration.collapsed(
-                    hintText: 'Enter A Topic',
-                  ),
-                ),
-              ),
-            ),
-          ),
-
           const SizedBox(height: 20),
-
-          // Import and Front & Back Buttons (Larger)
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Row(
-              children: [
-                Expanded(
-                  child: MouseRegion(
-                    onEnter: (_) {
-                      setState(() {
-                        _isHoveredImport = true;
-                      });
-                    },
-                    onExit: (_) {
-                      setState(() {
-                        _isHoveredImport = false;
-                      });
-                    },
-                    child: Column(
-                      children: [
-                        SizedBox(
-                          height: 50, // Height of the button
-                          width: double.infinity, // Full width
-                          child: ElevatedButton.icon(
-                            onPressed: () {
-                              _addCard("Sample Question", "Sample Answer");
-                              print("question and answer");
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: _isHoveredImport ? Colors.grey[700] : Colors.grey[600],
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              elevation: 5,
-                              shadowColor: Colors.black.withOpacity(0.3),
-                            ),
-                            icon: Icon(Icons.upload, color: Colors.white),
-                            label: AnimatedDefaultTextStyle(
-                              duration: const Duration(milliseconds: 200),
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: _isHoveredImport ? 16 : 14,
-                              ),
-                              child: const Text('Import'),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Container(
-                    height: 50, // Height of the button
-                    decoration: BoxDecoration(
-                      color: Colors.grey[600],
-                      borderRadius: BorderRadius.circular(8),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.3),
-                          blurRadius: 5,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            'Front & Back',
-                            style: TextStyle(
-                              color: _isChecked ? Colors.white : Colors.grey[400],
-                              fontWeight: _isChecked ? FontWeight.normal : FontWeight.w400,
-                            ),
-                          ),
-                          Switch(
-                            thumbIcon: thumbIcon,
-                            value: _isChecked,
-                            onChanged: (bool value) {
-                              _delayedVisibility(value);
-                            },
-                            activeColor: Colors.green,
-                            inactiveThumbColor: Colors.red[400],
-                            inactiveTrackColor: Colors.grey[400],
-                            activeTrackColor: Colors.green.withOpacity(0.5),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          const SizedBox(height: 15),
-
-          // Generate Button with Hover Effect
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: MouseRegion(
-              onEnter: (_) {
-                setState(() {
-                  _isHoveredGenerate = true;
-                });
-              },
-              onExit: (_) {
-                setState(() {
-                  _isHoveredGenerate = false;
-                });
-              },
-              child: Column(
-                children: [
-                  SizedBox(
-                    height: 50, // Height of the button
-                    width: double.infinity, // Full width
-                    child: ElevatedButton.icon(
-                      onPressed: () {
-                        _addCard("Generated Question", "Generated Answer");
-                        print("question and answer");
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: _isHoveredGenerate ? Colors.grey[700] : Colors.grey[600],
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        elevation: 5,
-                        shadowColor: Colors.black.withOpacity(0.3),
-                      ),
-                      icon: Icon(Icons.autorenew, color: Colors.white),
-                      label: AnimatedDefaultTextStyle(
-                        duration: const Duration(milliseconds: 200),
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: _isHoveredGenerate ? 16 : 14,
-                        ),
-                        child: const Text('Generate'),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-
-          const SizedBox(height: 20),
-
-          // Divider
           const Divider(thickness: 1),
-
-          // Added Cards Section
           const Padding(
             padding: EdgeInsets.symmetric(horizontal: 20),
             child: Text(
@@ -291,70 +248,78 @@ class _AddFlashcardViewState extends State<AddFlashcardView> {
               ),
             ),
           ),
+          const SizedBox(height: 10),
+          // Expanded(
+          //   child: Padding(
+          //     padding: const EdgeInsets.symmetric(horizontal: 20),
+          //     child: ListView.builder(
+          //       itemCount: questionAnswerPairs.length,
+          //       itemBuilder: (context, index) {
+          //         final pair = questionAnswerPairs[index];
+          //         return Column(
+          //           children: [
+          //             CardWidget(question: pair.key, answer: pair.value),
+          //             const SizedBox(height: 10),
+          //           ],
+          //         );
+          //       },
+          //     ),
+          //   ),
+          // ),
+        ],
+      ),
+    );
+  }
+}
 
-          // Display each card in a styled box
+class CardWidget extends StatelessWidget {
+  final String question;
+  final String answer;
+
+  const CardWidget({required this.question, required this.answer, super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(15),
+      decoration: BoxDecoration(
+        color: Colors.grey[100],
+        borderRadius: BorderRadius.circular(10),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.2),
+            blurRadius: 5,
+          ),
+        ],
+      ),
+      width: double.infinity,
+      height: 120,
+      child: Row(
+        children: [
           Expanded(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: ListView.builder(
-                itemCount: _cards.length,
-                itemBuilder: (context, index) {
-                  final card = _cards[index];
-                  return Card(
-                    margin: const EdgeInsets.symmetric(vertical: 8),
-                    elevation: 4,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(10),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            'Question:',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                              color: Colors.black,
-                            ),
-                          ),
-                          const SizedBox(height: 5),
-                          Text(
-                            card['question'] ?? '',
-                            style: const TextStyle(
-                              fontSize: 14,
-                              color: Colors.black87,
-                            ),
-                          ),
-                          const SizedBox(height: 10),
-                          const Divider(
-                            thickness: 1,
-                            color: Colors.grey,
-                          ),
-                          const SizedBox(height: 10),
-                          const Text(
-                            'Answer:',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                              color: Colors.black,
-                            ),
-                          ),
-                          const SizedBox(height: 5),
-                          Text(
-                            card['answer'] ?? '',
-                            style: const TextStyle(
-                              fontSize: 14,
-                              color: Colors.black87,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                },
+            flex: 3,
+            child: Text(
+              question,
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+                color: Colors.black87,
               ),
+              maxLines: 3,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          const SizedBox(width: 15),
+          Expanded(
+            flex: 2,
+            child: Text(
+              answer,
+              style: const TextStyle(
+                fontSize: 14,
+                color: Colors.black54,
+              ),
+              maxLines: 3,
+              overflow: TextOverflow.ellipsis,
             ),
           ),
         ],
@@ -362,3 +327,4 @@ class _AddFlashcardViewState extends State<AddFlashcardView> {
     );
   }
 }
+
