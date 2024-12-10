@@ -377,6 +377,6 @@ class _createBarState extends State<createBar> {
           ],
         ),
       ),
-    );
+    ));
   }
 }

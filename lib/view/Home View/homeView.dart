@@ -4,7 +4,6 @@ import 'package:project_fluttercse10/getset.dart';
 import 'package:project_fluttercse10/provider/pageProvider.dart';
 import 'package:project_fluttercse10/provider/themeProvider.dart';
 import 'package:provider/provider.dart';
-
 import '../../main/main.dart';
 import '../../provider/deckProvider.dart';
 import '../../widgets/deckWidgetSquare.dart';
@@ -34,18 +33,14 @@ class _homeViewState extends State<homeView> {
               const BorderRadius.vertical(bottom: Radius.circular(15)),
             ),
           ),
-          // ElevatedButton(onPressed: (
-          //     ){
-          //   theme.setTheme(FlexScheme.redWine);
-          // }, child: Text('Color1')),
           Align(
             alignment: Alignment.topLeft,
             child: Padding(
-              padding: const EdgeInsets.only(left: 20.0,top: 100),
+              padding: const EdgeInsets.only(left: 20.0,top: 50.0),
               child: Row(
                 children: [
                   const SizedBox(
-                    width: 20,
+                    width: 0,
                   ),
                   Padding(
                     padding: const EdgeInsets.all(8.0),
@@ -53,15 +48,18 @@ class _homeViewState extends State<homeView> {
                       borderRadius: BorderRadius.circular(200),
                       child: Image.network(
                         'https://pop.inquirer.net/files/2021/05/gigachad.jpg',
-                        width: 50,
-                        height: 50,
+                        width: 70,
+                        height: 70,
                         fit: BoxFit.cover,
                       ),
                     ),
                   ),
                   const Padding(
                     padding: EdgeInsets.all(8.0),
-                    child: Text('Andrei Castro', style: TextStyle(fontSize: 20,color: Colors.white),),
+                    child: Text(
+                      'Welcome Back Andrei Castro!',
+                      style: TextStyle(fontSize: 20, color: Colors.white),
+                    ),
                   ),
                 ],
               ),
@@ -72,7 +70,7 @@ class _homeViewState extends State<homeView> {
               SizedBox(height: getWid.wSize/1.65),
               Center(
                 child: Container(
-                  width: getWid.wSize * 0.93,
+                  width: MediaQuery.of(context).size.width * 0.93,
                   height: 150,
                   decoration: const BoxDecoration(
                     color: Colors.white,
@@ -88,10 +86,22 @@ class _homeViewState extends State<homeView> {
                     padding: EdgeInsets.all(30.0),
                     child: Column(
                       children: [
-                        Text("Search Flashcards",style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),),
-                        SizedBox(height: 8,),
-                        TextField( decoration: InputDecoration( hintText: 'Search Here', border: OutlineInputBorder( borderRadius: BorderRadius.all(Radius.circular(12)), ), prefixIcon: Icon(Icons.search),
+                        Text(
+                          "Search Flashcards",
+                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
                         ),
+                        SizedBox(height: 10),
+                        Text(
+                            "Easily search for your flashcards by typing keywords or topics into the search bar below."),
+                        SizedBox(height: 10),
+                        TextField(
+                          decoration: InputDecoration(
+                            hintText: 'Search Here',
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.all(Radius.circular(12)),
+                            ),
+                            prefixIcon: Icon(Icons.search),
+                          ),
                         ),
                       ],
                     ),
@@ -104,7 +114,10 @@ class _homeViewState extends State<homeView> {
                 children: [
                   const Padding(
                     padding: EdgeInsets.all(20.0),
-                    child: Text("Flashcard"),
+                    child: Text(
+                      "Flashcard",
+                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
+                    ),
                   ),
                   Padding(
                     padding: const EdgeInsets.all(20.0),
@@ -122,6 +135,7 @@ class _homeViewState extends State<homeView> {
           ),
 
         ],
+      ),
     );
   }
 }
