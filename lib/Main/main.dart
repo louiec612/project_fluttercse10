@@ -7,6 +7,7 @@ import 'package:project_fluttercse10/provider/animationProvider.dart';
 import 'package:project_fluttercse10/provider/cardProvider.dart';
 import 'package:project_fluttercse10/provider/deckProvider.dart';
 import 'package:project_fluttercse10/provider/themeProvider.dart';
+import 'package:project_fluttercse10/splash_screen.dart';
 import 'package:project_fluttercse10/view/Create%20View/createViewRevision.dart';
 import 'package:project_fluttercse10/view/Deck%20View/deckView.dart';
 import 'package:provider/provider.dart';
@@ -118,7 +119,7 @@ class MyApp extends StatelessWidget {
     builder: (BuildContext context, provider, Widget? child) =>MaterialApp(
         theme: provider.themes,
         debugShowCheckedModeBanner: false,
-        home: HomePage(),
+        home: SplashScreen(),
       ),
     ));
   }
@@ -181,7 +182,7 @@ class _bottomAppBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<PageProvider>(
         builder: (context, provider, child)=>Container(
-        height: 90,
+        height: 92,
         decoration: const BoxDecoration(
       
           boxShadow: [

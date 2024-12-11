@@ -24,47 +24,50 @@ class deckWidgetSquare extends StatelessWidget {
             ? const Text('No tables found')
             : Expanded(
             child: Consumer<CardClass>(
-              builder: (context, cards, child) => GridView.builder(
-                itemCount: tableNameProvider.recentTables.length,
-                itemBuilder: (context, index) {
-                  final tableName = tableNameProvider.recentTables[index];
-                  return Container(
-                    decoration: BoxDecoration(
-                        color: Colors.white,
-                        border: Border.all(
-                            color: const Color.fromARGB(228, 227, 233, 255),
-                            width: 2),
-                        borderRadius: BorderRadius.circular(15),
-                        boxShadow: [
-                          BoxShadow(
-                            color:
-                            Colors.grey.withOpacity(0.2), // Shadow color
-                            spreadRadius: 1, // Spread radius
-                            blurRadius: 5, // Blur radius
-                            offset: const Offset(0, 1),
-                          )
-                        ]),
-                    margin: const EdgeInsets.symmetric(
-                        vertical: 5, horizontal: 5),
-                    child: ListTile(
-                      title: Text(tableName),
-                      onTap: () async{
-                        DbHelper.dbHelper.tableName = tableName;
-                        await cards.getCards();
-                        if (cards.allCards.isNotEmpty) {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => quizView(name: tableName)));
-                        }
-                      },
-                    ),
-                  );
-                }, gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 3,
-                crossAxisSpacing: 2.0,
-                mainAxisSpacing: 2.0,
-              ),
+              builder: (context, cards, child) => Padding(
+                padding: const EdgeInsets.all(15.0),
+                child: GridView.builder(
+                  itemCount: tableNameProvider.recentTables.length,
+                  itemBuilder: (context, index) {
+                    final tableName = tableNameProvider.recentTables[index];
+                    return Container(
+                      decoration: BoxDecoration(
+                          color: Colors.white,
+                          border: Border.all(
+                              color: const Color.fromARGB(228, 227, 233, 255),
+                              width: 2),
+                          borderRadius: BorderRadius.circular(15),
+                          boxShadow: [
+                            BoxShadow(
+                              color:
+                              Colors.grey.withOpacity(0.2), // Shadow color
+                              spreadRadius: 1, // Spread radius
+                              blurRadius: 5, // Blur radius
+                              offset: const Offset(0, 1),
+                            )
+                          ]),
+                      margin: const EdgeInsets.symmetric(
+                          vertical: 5, horizontal: 5),
+                      child: ListTile(
+                        title: Text(tableName,style: const TextStyle(fontSize: 14),),
+                        onTap: () async{
+                          DbHelper.dbHelper.tableName = tableName;
+                          await cards.getCards();
+                          if (cards.allCards.isNotEmpty) {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => quizView(name: tableName)));
+                          }
+                        },
+                      ),
+                    );
+                  }, gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 3,
+                  crossAxisSpacing: 2.0,
+                  mainAxisSpacing: 2.0,
+                ),
+                ),
               ),
             ));
       },

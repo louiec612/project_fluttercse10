@@ -1,3 +1,5 @@
+import 'package:project_fluttercse10/provider/deckProvider.dart';
+import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import 'package:bootstrap_icons/bootstrap_icons.dart';
 import 'package:flutter/material.dart';
@@ -28,9 +30,8 @@ class _profileViewState extends State<profileView> {
               SizedBox(height: 30),
               userChartInfo(),
               SizedBox(height: 30),
-              aboutContainer(),
-              SizedBox(height: 30),
-
+              // aboutContainer(),
+              // SizedBox(height: 30),
             ],
           ),
         ]),
@@ -112,12 +113,15 @@ class userSpent extends StatefulWidget {
 }
 
 class _userSpentState extends State<userSpent> {
-  String fcCount = '0';
+
   String hrCount = '0';
   final GlobalKey widgetKey = GlobalKey();
 
   @override
   Widget build(BuildContext context) {
+    final provider = Provider.of<deckProvider>(context);
+    provider.fetchTableNames();
+    int fcCount =  provider.tableNames.length;
     return Column(
       children: [
         Container(
@@ -149,8 +153,8 @@ class _userSpentState extends State<userSpent> {
                   Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text(fcCount, style: const TextStyle(fontSize: 20)),
-                      const Text('Flashcards added',
+                      Text('$fcCount', style: const TextStyle(fontSize: 20)),
+                      Text('Decks added',
                           style: TextStyle(fontSize: 13)),
                     ],
                   ),

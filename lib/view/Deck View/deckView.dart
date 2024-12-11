@@ -45,6 +45,7 @@ class deckView extends StatelessWidget {
               SizedBox(height: getWid.wSize / 1.20),
 
               const createTable(),
+              SizedBox(height:10),
               // deleteAllButton(),
               const TableListWidget(),
             ],

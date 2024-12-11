@@ -85,7 +85,7 @@ class _homeViewState extends State<homeView> {
                       children: [
                         Text("Search Flashcards",style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),),
                         SizedBox(height: 8,),
-                        SizedBox(height: 10),
+                        SizedBox(height: 7),
                         TextField( decoration: InputDecoration( hintText: 'Search Here', border: OutlineInputBorder( borderRadius: BorderRadius.all(Radius.circular(12)), ), prefixIcon: Icon(Icons.search),
                         ),
                         ),
